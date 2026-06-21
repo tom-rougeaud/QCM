@@ -1,0 +1,2389 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Éditeur de QCM Plickers - Maths Sciences Techno</title>
+<style>
+:root {
+  --color-bg-primary: #ffffff;
+  --color-bg-secondary: #f8fafc;
+  --color-bg-tertiary: #f1f5f9;
+  --color-border: #e5e7eb;
+  --color-border-strong: #d1d5db;
+  --color-text-primary: #1e293b;
+  --color-text-secondary: #64748b;
+  --color-text-tertiary: #94a3b8;
+  --radius-lg: 14px;
+  --radius-md: 10px;
+  --radius-sm: 6px;
+  --primary: #0066cc;
+  --primary-dark: #004299;
+  --accent: #ff6600;
+  --success: #10b981;
+  --success-bg: #dcfce7;
+  --success-text: #166534;
+  --warning: #f59e0b;
+  --warning-bg: #fef3c7;
+  --warning-text: #92400e;
+  --danger: #ef4444;
+  --maths-color: #0066cc;
+  --maths-bg: #e5f0fc;
+  --physique-color: #7c3aed;
+  --physique-bg: #f1eafe;
+  --techno-color: #ea580c;
+  --techno-bg: #ffe9da;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  background: var(--color-bg-secondary);
+  color: var(--color-text-primary);
+  line-height: 1.6;
+}
+body.dark-mode {
+  --color-bg-primary: #1e293b;
+  --color-bg-secondary: #0f172a;
+  --color-bg-tertiary: #1e293b;
+  --color-border: #334155;
+  --color-border-strong: #475569;
+  --color-text-primary: #f1f5f9;
+  --color-text-secondary: #cbd5e1;
+  --color-text-tertiary: #94a3b8;
+}
+a { color: var(--primary); text-decoration:none; }
+a:hover { text-decoration:underline; }
+h1,h2,h3,h4 { color: var(--color-text-primary); }
+p { color: var(--color-text-secondary); margin: 8px 0; }
+ul, ol { margin: 10px 0 10px 22px; line-height:1.8; }
+li { margin: 6px 0; color: var(--color-text-secondary); }
+
+/* HEADER */
+header {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+  color: white;
+  padding: 18px 32px;
+  display:flex; justify-content:space-between; align-items:center;
+  flex-wrap:wrap; gap:16px;
+  position:sticky; top:0; z-index:200;
+  box-shadow: 0 4px 14px rgba(0,102,204,0.18);
+}
+.header-title { display:flex; align-items:center; gap:12px; font-weight:700; font-size:19px; }
+.header-title small { display:block; font-size:11px; font-weight:400; opacity:0.85; }
+.header-nav { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+.nav-btn {
+  background: rgba(255,255,255,0.14);
+  border: 1px solid rgba(255,255,255,0.22);
+  color:white; padding:8px 14px; border-radius:var(--radius-sm);
+  cursor:pointer; font-size:12.5px; font-weight:600; transition:all .2s;
+}
+.nav-btn:hover { background: rgba(255,255,255,0.26); }
+.nav-btn.active { background: rgba(255,255,255,0.32); border-color:white; }
+.nav-separator { width:1px; height:26px; background:rgba(255,255,255,0.3); margin:0 4px; }
+.create-qcm-btn {
+  background: linear-gradient(135deg, var(--accent), #ff8c3d) !important;
+  border:none !important; color:white !important;
+  padding:11px 22px !important; font-size:13.5px !important; font-weight:700 !important;
+  border-radius: 10px !important;
+  box-shadow: 0 4px 14px rgba(255,102,0,0.35);
+  transition: all .25s;
+}
+.create-qcm-btn:hover { transform: translateY(-2px) scale(1.03); box-shadow: 0 6px 20px rgba(255,102,0,0.45); }
+.dark-toggle {
+  background: rgba(255,255,255,0.14) !important; border:1px solid rgba(255,255,255,0.22) !important;
+  width:38px !important; height:38px !important; padding:0 !important;
+  display:flex; align-items:center; justify-content:center; font-size:16px; border-radius:var(--radius-sm);
+}
+
+/* LAYOUT */
+.container { max-width:1180px; margin:0 auto; padding:32px 20px; }
+.page { display:none; }
+.page.active { display:block; animation: fadeIn .25s ease-in; }
+@keyframes fadeIn { from{opacity:0; transform:translateY(8px);} to{opacity:1; transform:translateY(0);} }
+
+.card {
+  background: var(--color-bg-primary);
+  border-radius: var(--radius-lg);
+  padding: 22px;
+  margin: 18px 0;
+  border: 1px solid var(--color-border);
+  border-left: 4px solid var(--primary);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+}
+.card.accent-physique { border-left-color: var(--physique-color); }
+.card.accent-techno { border-left-color: var(--techno-color); }
+.card.accent-flat { border-left-color: var(--accent); }
+
+h1 { font-size:32px; margin:14px 0 8px; color:var(--primary); }
+h2 { font-size:25px; margin:6px 0 14px; color:var(--primary); }
+h3 { font-size:17px; margin:0 0 10px; }
+
+.grid-2 { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:16px; margin:18px 0; }
+
+.btn {
+  padding:10px 18px; border:none; border-radius:var(--radius-sm); cursor:pointer;
+  font-weight:600; font-size:13.5px; transition:all .2s; font-family:inherit;
+}
+.btn-primary { background:var(--primary); color:white; }
+.btn-primary:hover { background:var(--primary-dark); transform:translateY(-1px); box-shadow:0 4px 12px rgba(0,102,204,0.3); }
+.btn-secondary { background:var(--color-bg-tertiary); color:var(--color-text-primary); border:1px solid var(--color-border); }
+.btn-secondary:hover { background:var(--color-border); }
+.btn-secondary.is-active { background:var(--primary); color:white; border-color:var(--primary); }
+.btn-danger { background:var(--danger); color:white; }
+.btn-sm { padding:6px 12px; font-size:12px; }
+.btn-full { width:100%; padding:15px; font-size:15.5px; margin-top:18px; }
+.btn-group { display:flex; gap:10px; flex-wrap:wrap; margin:14px 0; }
+
+/* SUBJECT TABS */
+.subject-tabs { display:flex; gap:10px; flex-wrap:wrap; margin:16px 0; }
+.subject-tab {
+  display:flex; align-items:center; gap:10px; padding:14px 18px;
+  border:2px solid var(--color-border); border-radius:var(--radius-lg);
+  background:var(--color-bg-primary); cursor:pointer; transition:all .2s; flex:1; min-width:180px;
+}
+.subject-tab:hover { border-color: var(--color-border-strong); transform:translateY(-2px); }
+.subject-tab .s-icon { width:38px; height:38px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:18px; flex-shrink:0; }
+.subject-tab .s-info { flex:1; }
+.subject-tab .s-name { font-weight:700; font-size:14px; }
+.subject-tab .s-count { font-size:11.5px; color:var(--color-text-secondary); }
+.subject-tab[data-subject="maths"].active { border-color:var(--maths-color); background:var(--maths-bg); }
+.subject-tab[data-subject="physique"].active { border-color:var(--physique-color); background:var(--physique-bg); }
+.subject-tab[data-subject="techno"].active { border-color:var(--techno-color); background:var(--techno-bg); }
+body.dark-mode .subject-tab.active { background: var(--color-bg-tertiary); }
+
+.level-tabs { display:flex; gap:8px; flex-wrap:wrap; margin:14px 0 6px; }
+.level-tab {
+  padding:9px 16px; border-radius:999px; border:1.5px solid var(--color-border);
+  background:var(--color-bg-primary); cursor:pointer; font-size:12.5px; font-weight:600; transition:all .2s;
+}
+.level-tab:hover { border-color:var(--color-border-strong); }
+.level-tab.active { background:var(--primary); color:white; border-color:var(--primary); }
+.level-bo-tag { font-size:11.5px; color:var(--color-text-tertiary); margin:4px 0 18px; font-style:italic; }
+
+/* SEARCH */
+.search-box { position:relative; margin:16px 0; }
+.search-box input {
+  width:100%; padding:11px 14px 11px 38px; border-radius:var(--radius-md);
+  border:1.5px solid var(--color-border); background:var(--color-bg-primary); color:var(--color-text-primary);
+  font-size:13.5px; font-family:inherit;
+}
+.search-box input:focus { outline:none; border-color:var(--primary); }
+.search-box::before { content:"🔍"; position:absolute; left:13px; top:50%; transform:translateY(-50%); font-size:13px; opacity:.6; }
+
+/* ACCORDION */
+.level-actions { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:14px; }
+.accordion-container { display:flex; flex-direction:column; gap:10px; }
+.acc-theme {
+  background:var(--color-bg-primary); border:1px solid var(--color-border);
+  border-radius:var(--radius-lg); overflow:hidden;
+}
+.acc-theme-header { display:flex; align-items:center; gap:11px; padding:13px 15px; cursor:pointer; }
+.acc-theme-header:hover { background:var(--color-bg-secondary); }
+.theme-badge {
+  width:34px; height:34px; border-radius:9px; display:flex; align-items:center; justify-content:center;
+  font-size:15px; flex-shrink:0;
+}
+.theme-meta { flex:1; min-width:0; }
+.theme-meta .t-name { font-size:14px; font-weight:600; }
+.theme-meta .t-count { font-size:11.5px; color:var(--color-text-secondary); }
+.acc-chevron { font-size:13px; color:var(--color-text-tertiary); transition:transform .2s; flex-shrink:0; }
+.acc-theme.open > .acc-theme-header .acc-chevron { transform:rotate(90deg); }
+.acc-chapters { display:none; padding:8px 12px 12px; background:var(--color-bg-secondary); flex-direction:column; gap:7px; }
+.acc-theme.open > .acc-chapters { display:flex; }
+
+.acc-chapter { background:var(--color-bg-primary); border:1px solid var(--color-border); border-radius:var(--radius-md); }
+.acc-chapter-header { display:flex; align-items:center; gap:9px; padding:9px 11px; cursor:pointer; }
+.acc-chapter-header:hover { background: var(--color-bg-secondary); }
+.chap-icon { font-size:13px; flex-shrink:0; width:18px; text-align:center; }
+.chap-name { flex:1; font-size:12.8px; font-weight:600; }
+.chap-bo { font-size:10.5px; color:var(--color-text-tertiary); font-weight:400; margin-left:4px; }
+.acc-chapter.open > .acc-chapter-header .acc-chevron { transform:rotate(90deg); }
+.acc-items { display:none; flex-direction:column; gap:4px; padding:4px 11px 11px 40px; }
+.acc-chapter.open > .acc-items { display:flex; }
+.acc-item-row { display:flex; align-items:flex-start; gap:8px; padding:4px 0; cursor:pointer; }
+.acc-item-row label { font-size:12.3px; line-height:1.5; color:var(--color-text-secondary); cursor:pointer; }
+
+input[type=checkbox].ccheck {
+  appearance:none; -webkit-appearance:none; width:17px; height:17px; min-width:17px;
+  border-radius:5px; border:1.6px solid var(--color-border-strong);
+  cursor:pointer; position:relative; background:var(--color-bg-primary); flex-shrink:0; margin-top:1px;
+}
+input[type=checkbox].ccheck.size-md { width:19px; height:19px; min-width:19px; }
+input[type=checkbox].ccheck:checked { background:var(--success); border-color:var(--success); }
+input[type=checkbox].ccheck:checked::after {
+  content:"✓"; position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+  color:white; font-size:11px; font-weight:800;
+}
+input[type=checkbox].ccheck:indeterminate { background:var(--warning); border-color:var(--warning); }
+input[type=checkbox].ccheck:indeterminate::after {
+  content:"–"; position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+  color:white; font-size:13px; font-weight:800;
+}
+
+/* CONFIG STEP */
+.config-row { margin:18px 0; }
+.config-row label.field-label { display:block; font-weight:700; font-size:13.5px; margin-bottom:9px; }
+.qty-row { display:flex; align-items:center; gap:14px; flex-wrap:wrap; }
+.qty-input {
+  width:90px; padding:10px 12px; border-radius:var(--radius-sm); border:1.6px solid var(--color-border);
+  background:var(--color-bg-primary); color:var(--color-text-primary); font-size:16px; font-weight:700; text-align:center;
+}
+.qty-input:focus { outline:none; border-color:var(--primary); }
+.qty-presets { display:flex; gap:6px; flex-wrap:wrap; }
+.qty-presets button { padding:8px 13px; font-size:12.5px; }
+
+/* SUMMARY */
+.summary-box {
+  background: linear-gradient(135deg, rgba(0,102,204,0.06), rgba(0,102,204,0.11));
+  border:1px solid var(--primary); border-radius:var(--radius-lg); padding:20px; margin:20px 0;
+}
+body.dark-mode .summary-box { background: linear-gradient(135deg, rgba(0,102,204,0.18), rgba(0,102,204,0.1)); }
+.summary-row { display:flex; justify-content:space-between; padding:7px 0; border-bottom:1px solid var(--color-border); font-size:13.5px; }
+.summary-row:last-child { border-bottom:none; }
+.summary-label { font-weight:700; color:var(--primary); }
+.summary-value { color:var(--color-text-secondary); font-family:'Courier New',monospace; font-size:12.5px; text-align:right; }
+.selection-tags { display:flex; flex-wrap:wrap; gap:6px; margin-top:10px; }
+.selection-tag { background:var(--color-bg-primary); border:1px solid var(--color-border); border-radius:999px; padding:4px 10px; font-size:11px; color:var(--color-text-secondary); }
+
+/* RESULTS */
+.preview-box {
+  background:var(--color-bg-tertiary); border:1px solid var(--color-border); border-radius:var(--radius-lg);
+  padding:18px; margin:16px 0; font-family:'Courier New',monospace; font-size:12.5px; line-height:1.7;
+  max-height:520px; overflow-y:auto; white-space:pre-wrap; word-wrap:break-word;
+}
+body.dark-mode .preview-box { color:#a1d76a; }
+
+.ia-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(115px,1fr)); gap:14px; margin:18px 0; }
+.ia-btn {
+  display:flex; flex-direction:column; align-items:center; gap:9px; padding:18px 10px;
+  border:2px solid var(--color-border); border-radius:var(--radius-lg); background:var(--color-bg-primary);
+  color:var(--color-text-primary); cursor:pointer; font-weight:600; font-size:12.5px; transition:all .2s;
+}
+.ia-btn:hover { transform:translateY(-4px); box-shadow:0 10px 22px rgba(0,0,0,0.12); border-color:var(--primary); }
+.ia-btn img { width:38px; height:38px; object-fit:contain; }
+
+.alert { padding:14px 18px; border-radius:var(--radius-md); margin:16px 0; border-left:4px solid; display:flex; gap:11px; align-items:flex-start; }
+.alert-icon { font-size:18px; flex-shrink:0; }
+.alert-info { background:#eff6ff; color:#1e40af; border-left-color:var(--primary); }
+body.dark-mode .alert-info { background:rgba(0,102,204,0.12); color:#93c5fd; }
+.alert-warning { background:#fffbeb; color:#92400e; border-left-color:var(--warning); }
+body.dark-mode .alert-warning { background:rgba(245,158,11,0.12); color:#fcd34d; }
+
+/* LICENSE / DATA pages */
+.license-box {
+  background: linear-gradient(135deg, rgba(0,102,204,0.05), rgba(255,102,0,0.05));
+  border:1px solid var(--color-border); border-radius:var(--radius-lg); padding:24px; margin:18px 0;
+}
+body.dark-mode .license-box { background: linear-gradient(135deg, rgba(0,102,204,0.12), rgba(255,102,0,0.1)); }
+.cc-badges { display:flex; gap:8px; margin:14px 0; flex-wrap:wrap; }
+.cc-badge { background:var(--color-bg-tertiary); border:1px solid var(--color-border); border-radius:var(--radius-sm); padding:6px 12px; font-size:12px; font-weight:700; }
+
+table.bo-table { width:100%; border-collapse:collapse; margin:14px 0; font-size:12.5px; }
+table.bo-table th, table.bo-table td { text-align:left; padding:9px 10px; border-bottom:1px solid var(--color-border); }
+table.bo-table th { color:var(--primary); font-size:11.5px; text-transform:uppercase; letter-spacing:0.03em; }
+table.bo-table td.bo-ref { color:var(--color-text-secondary); font-family:'Courier New',monospace; font-size:11.5px; }
+
+/* FOOTER */
+footer { background:var(--color-bg-primary); border-top:1px solid var(--color-border); padding:28px 32px; margin-top:50px; text-align:center; font-size:12.5px; color:var(--color-text-secondary); }
+.footer-links { display:flex; gap:18px; justify-content:center; flex-wrap:wrap; margin-bottom:12px; }
+.footer-links a { color:var(--primary); font-weight:600; }
+
+@media (max-width:768px) {
+  header { padding:14px 16px; }
+  .header-title { font-size:15px; }
+  .container { padding:20px 14px; }
+  .ia-grid { grid-template-columns:repeat(auto-fit,minmax(95px,1fr)); }
+  .subject-tab { min-width:140px; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-title">
+    <span style="font-size:24px;">📊</span>
+    <div>Éditeur de QCM Plickers<small>Mathématiques · Physique-Chimie · Technologie</small></div>
+  </div>
+  <div class="header-nav">
+    <button class="nav-btn active" onclick="showPage('home')">Accueil</button>
+    <button class="nav-btn" onclick="showPage('guide')">Guide</button>
+    <button class="nav-btn" onclick="showPage('plickers')">Plickers</button>
+    <button class="nav-btn" onclick="showPage('license')">Licence</button>
+    <button class="nav-btn" onclick="showPage('data')">Données</button>
+    <span class="nav-separator"></span>
+    <button class="create-qcm-btn nav-btn" onclick="showPage('wizard')">🚀 Créer un QCM</button>
+    <button class="dark-toggle" onclick="toggleDarkMode()">🌙</button>
+  </div>
+</header>
+
+<div class="container">
+
+  <!-- PAGE ACCUEIL -->
+  <div class="page active" id="home">
+    <h1>Éditeur de QCM Plickers</h1>
+    <p style="font-size:17px;">Générez des QCM conformes aux programmes officiels — Mathématiques, Physique-Chimie et Technologie, de la 3ème au Bac Pro.</p>
+
+    <div class="grid-2">
+      <div class="card"><h3>📐🔬⚙️ 3 matières complètes</h3><p>Mathématiques, Physique-Chimie et Technologie, avec le détail des automatismes officiels.</p></div>
+      <div class="card accent-physique"><h3 id="statsHeadline">Base de données exhaustive</h3><p id="statsLine">Chargement…</p></div>
+      <div class="card accent-techno"><h3>🎯 Sélection granulaire</h3><p>Choisissez un niveau entier, un ou plusieurs thèmes, un ou plusieurs chapitres, ou des items isolés.</p></div>
+      <div class="card"><h3>🔐 100% local</h3><p>Aucune donnée envoyée à un serveur. Tout reste sur votre ordinateur.</p></div>
+    </div>
+
+    <div class="card accent-flat">
+      <h3>Comment ça marche ?</h3>
+      <ol>
+        <li><strong>Choisissez</strong> une matière puis un niveau</li>
+        <li><strong>Sélectionnez</strong> vos thèmes, chapitres ou items via l'accordéon</li>
+        <li><strong>Configurez</strong> le nombre de questions, de réponses et la difficulté</li>
+        <li><strong>Générez</strong> le prompt et envoyez-le à l'IA de votre choix</li>
+        <li><strong>Importez</strong> le résultat dans Plickers</li>
+      </ol>
+      <button class="btn btn-primary btn-full" onclick="showPage('wizard')">🚀 Commencer maintenant</button>
+    </div>
+  </div>
+
+  <!-- PAGE WIZARD -->
+  <div class="page" id="wizard">
+    <h2>Créer un nouveau QCM</h2>
+
+    <div class="card">
+      <h3>Étape 1 · Choisissez une matière</h3>
+      <div class="subject-tabs" id="subjectTabs"></div>
+
+      <h3 style="margin-top:18px;">Étape 2 · Choisissez un niveau</h3>
+      <div class="level-tabs" id="levelTabs"></div>
+      <div class="level-bo-tag" id="levelBoTag"></div>
+
+      <div id="levelContentZone" style="display:none;">
+        <div class="search-box"><input type="text" id="itemSearch" placeholder="Rechercher un thème, un chapitre ou une notion…" oninput="onSearchInput()"></div>
+        <div class="level-actions">
+          <button class="btn btn-secondary btn-sm" onclick="selectAllLevel()">✓ Sélectionner tout le niveau</button>
+          <button class="btn btn-secondary btn-sm" onclick="deselectAllLevel()">✗ Désélectionner tout le niveau</button>
+        </div>
+        <div class="accordion-container" id="accordionContainer"></div>
+      </div>
+      <p id="noLevelMsg" style="text-align:center;padding:20px;">Sélectionnez une matière puis un niveau pour afficher le contenu du programme.</p>
+    </div>
+
+    <div class="card">
+      <h3>Étape 3 · Configurez votre QCM</h3>
+
+      <div class="config-row">
+        <label class="field-label">Nombre de questions</label>
+        <div class="qty-row">
+          <input type="number" id="questionsInput" class="qty-input" min="1" max="100" value="10" oninput="setQuestionsFromInput()">
+          <div class="qty-presets">
+            <button class="btn btn-secondary" onclick="setQuestionsPreset(5)">5</button>
+            <button class="btn btn-secondary" onclick="setQuestionsPreset(10)">10</button>
+            <button class="btn btn-secondary" onclick="setQuestionsPreset(15)">15</button>
+            <button class="btn btn-secondary" onclick="setQuestionsPreset(20)">20</button>
+            <button class="btn btn-secondary" onclick="setQuestionsPreset(30)">30</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="config-row">
+        <label class="field-label">Nombre de réponses par question</label>
+        <div class="btn-group" id="answersGroup">
+          <button class="btn btn-secondary" onclick="setConfig('answers',2,this)">2</button>
+          <button class="btn btn-secondary" onclick="setConfig('answers',3,this)">3</button>
+          <button class="btn btn-secondary" onclick="setConfig('answers',4,this)">4</button>
+        </div>
+      </div>
+
+      <div class="config-row">
+        <label class="field-label">Difficulté</label>
+        <div class="btn-group" id="difficultyGroup">
+          <button class="btn btn-secondary" onclick="setConfig('difficulty','easy',this)">🟢 Facile</button>
+          <button class="btn btn-secondary" onclick="setConfig('difficulty','medium',this)">🟡 Moyen</button>
+          <button class="btn btn-secondary" onclick="setConfig('difficulty','hard',this)">🔴 Difficile</button>
+          <button class="btn btn-secondary" onclick="setConfig('difficulty','progressive',this)">📈 Progressif</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="summary-box">
+      <h3 style="margin-top:0;">📋 Résumé de la sélection</h3>
+      <div id="configSummary"></div>
+      <div class="selection-tags" id="selectionTags"></div>
+    </div>
+
+    <div class="btn-group">
+      <button class="btn btn-primary btn-full" onclick="generatePrompt()" style="flex:3;">🚀 Générer le prompt</button>
+      <button class="btn btn-secondary btn-full" onclick="confirmReset()" style="flex:1;">🔄 Réinitialiser</button>
+    </div>
+  </div>
+
+  <!-- PAGE RESULTATS -->
+  <div class="page" id="results">
+    <h2>Votre QCM est prêt !</h2>
+    <div class="alert alert-info"><span class="alert-icon">ℹ️</span><div>Le prompt généré est conçu pour produire un résultat identique quelle que soit l'IA utilisée. Copiez-le et collez-le dans votre IA préférée.</div></div>
+
+    <h3>📤 Envoyer à une IA</h3>
+    <div class="ia-grid" id="iaButtons"></div>
+
+    <h3 style="margin-top:26px;">💾 Exporter</h3>
+    <div class="btn-group">
+      <button class="btn btn-primary" onclick="copyToClipboard()">📋 Copier</button>
+      <button class="btn btn-primary" onclick="downloadTXT()">📄 TXT</button>
+      <button class="btn btn-primary" onclick="downloadJSON()">⚙️ JSON</button>
+    </div>
+
+    <h3 style="margin-top:26px;">📋 Aperçu du prompt</h3>
+    <div class="preview-box" id="promptPreview"></div>
+
+    <div class="btn-group" style="margin-top:20px;">
+      <button class="btn btn-secondary" onclick="showPage('wizard')">← Modifier la sélection</button>
+      <button class="btn btn-primary" onclick="createAnotherQCM()">🆕 Créer un autre QCM</button>
+      <button class="btn btn-primary" onclick="showPage('plickers')">📺 Guide Plickers →</button>
+    </div>
+  </div>
+
+  <!-- PAGE GUIDE -->
+  <div class="page" id="guide">
+    <h2>Guide complet</h2>
+    <div class="card">
+      <h3>Sélection du contenu</h3>
+      <p>L'éditeur propose une sélection granulaire à 4 niveaux, identique à l'outil Suivi de Progression :</p>
+      <ol>
+        <li><strong>Niveau entier</strong> — bouton « Sélectionner tout le niveau »</li>
+        <li><strong>Thème</strong> — cochez la case dans l'en-tête du thème pour sélectionner tous ses chapitres</li>
+        <li><strong>Chapitre</strong> — cochez la case du chapitre pour sélectionner tous ses items</li>
+        <li><strong>Item isolé</strong> — cochez une notion précise</li>
+      </ol>
+      <p>Tout est fermé par défaut. Un clic sur un thème déplie ses chapitres ; un clic sur un chapitre déplie ses items. Plusieurs thèmes ou chapitres peuvent rester ouverts en même temps.</p>
+    </div>
+    <div class="card">
+      <h3>Configuration du QCM</h3>
+      <ul>
+        <li><strong>Nombre de questions</strong> — champ de saisie libre (1 à 100) ou boutons rapides</li>
+        <li><strong>Nombre de réponses</strong> — 2, 3 ou 4 propositions</li>
+        <li><strong>Difficulté</strong> — Facile, Moyen, Difficile ou Progressif</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Format Plickers</h3>
+      <div class="preview-box">Question 1
+Réponse A
+Réponse B [correct]
+Réponse C
+Réponse D
+Question 2
+Réponse A [correct]
+Réponse B
+Réponse C
+Réponse D</div>
+    </div>
+  </div>
+
+  <!-- PAGE PLICKERS -->
+  <div class="page" id="plickers">
+    <h2>Importer dans Plickers</h2>
+    <div class="card">
+      <h3>Procédure d'import</h3>
+      <ol>
+        <li>Allez sur <a href="https://plickers.com" target="_blank">plickers.com</a></li>
+        <li>Connectez-vous à votre compte</li>
+        <li>Cliquez sur « Import Questions »</li>
+        <li>Collez le texte généré par l'IA</li>
+        <li>Cliquez sur « Import »</li>
+      </ol>
+    </div>
+    <div class="card">
+      <h3>Vidéo tutorielle officielle</h3>
+      <p><a href="https://assets.plickers.com/videos/Plickers-Getting-Started-With-Import-Questions.webm" target="_blank">Regarder le tutoriel officiel →</a></p>
+    </div>
+  </div>
+
+  <!-- PAGE LICENCE -->
+  <div class="page" id="license">
+    <h2>Licence CC BY-NC-SA 4.0</h2>
+    <div class="license-box">
+      <div class="cc-badges">
+        <span class="cc-badge">BY — Attribution</span>
+        <span class="cc-badge">NC — Pas d'utilisation commerciale</span>
+        <span class="cc-badge">SA — Partage dans les mêmes conditions</span>
+      </div>
+      <h3>✅ Vous êtes libre de :</h3>
+      <ul>
+        <li><strong>Partager</strong> — copier, distribuer et communiquer le matériel par tous moyens et sous tous formats</li>
+        <li><strong>Adapter</strong> — remixer, transformer et créer à partir du matériel</li>
+      </ul>
+      <p>L'Offrant ne peut retirer les possibilités offertes par la licence tant que les conditions sont respectées.</p>
+      <h3 style="margin-top:18px;">📌 Selon les conditions suivantes :</h3>
+      <ul>
+        <li><strong>Attribution</strong> — Vous devez créditer l'œuvre, intégrer un lien vers la licence et indiquer si des modifications ont été effectuées. Vous devez indiquer ces informations par tous les moyens raisonnables, sans toutefois suggérer que l'Offrant vous soutient ou approuve votre utilisation.</li>
+        <li><strong>Pas d'utilisation commerciale</strong> — Vous n'êtes pas autorisé à faire un usage commercial de cette œuvre, tout ou partie du matériel la composant.</li>
+        <li><strong>Partage dans les mêmes conditions</strong> — Dans le cas où vous effectuez un remix, que vous transformez, ou créez à partir du matériel composant l'œuvre originale, vous devez diffuser l'œuvre modifiée dans les mêmes conditions, c'est à dire avec la même licence avec laquelle l'œuvre originale a été diffusée.</li>
+      </ul>
+      <h3 style="margin-top:18px;">❌ Restrictions complémentaires</h3>
+      <ul>
+        <li>Pas de mesures techniques empêchant légalement autrui d'effectuer tout usage permis par la licence</li>
+        <li>Aucune clause de cette licence ne diminue, ni ne restreint, ni ne limite le droit moral de l'auteur</li>
+      </ul>
+      <h3 style="margin-top:18px;">📄 Texte officiel</h3>
+      <p><a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.fr" target="_blank">Résumé (Commons Deed) en français →</a><br>
+      <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/legalcode.fr" target="_blank">Texte juridique intégral (Legal Code) en français →</a></p>
+      <h3 style="margin-top:18px;">📚 Origine des données pédagogiques</h3>
+      <p>Le référentiel de thèmes, chapitres et items embarqué dans cet éditeur est issu de l'application <em>« Suivi de Progression — Mathématiques · Physique-Chimie · Technologie »</em>, elle-même construite à partir des Bulletins Officiels de l'Éducation nationale en vigueur. Cet éditeur de QCM hérite de la même licence CC BY-NC-SA 4.0.</p>
+      <p style="margin-top:18px; padding-top:18px; border-top:1px solid var(--color-border);"><strong>© 2026 Tom Rougeaud</strong> · Licence CC BY-NC-SA 4.0</p>
+    </div>
+  </div>
+
+  <!-- PAGE DONNEES -->
+  <div class="page" id="data">
+    <h2>Données et confidentialité</h2>
+    <div class="card">
+      <h3>📊 Base pédagogique embarquée</h3>
+      <p id="dataStatsLine">Chargement…</p>
+      <p style="margin-top:14px;">Référentiels officiels couverts (Bulletins Officiels avec dates de publication) :</p>
+      <table class="bo-table" id="boTable"><thead><tr><th>Matière</th><th>Niveau</th><th>Référence BO</th></tr></thead><tbody></tbody></table>
+    </div>
+    <div class="card">
+      <h3>🔒 Confidentialité</h3>
+      <ul>
+        <li><strong>Aucune collecte de données</strong> — l'application fonctionne 100% localement</li>
+        <li><strong>Aucun serveur</strong> — pas d'envoi vers des serveurs distants</li>
+        <li><strong>Pas de stockage persistant</strong> — vos sélections vivent dans la page tant qu'elle reste ouverte</li>
+        <li><strong>Conforme RGPD</strong> — aucune donnée personnelle traitée</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>📋 Le prompt généré</h3>
+      <p>Lorsque vous générez un QCM, le prompt inclut :</p>
+      <ul>
+        <li>La liste précise des items sélectionnés, regroupés par matière et niveau</li>
+        <li>La référence BO exacte (numéro et date) de chaque niveau concerné</li>
+        <li>Des contraintes de structure strictes pour un format identique quelle que soit l'IA</li>
+        <li>Des exigences de fiabilité (vérification triple) et de qualité pédagogique des distracteurs</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>🤖 Export vers les IA</h3>
+      <p>Le prompt est compatible avec ChatGPT (OpenAI), Claude (Anthropic), Gemini (Google), Mistral (Mistral AI) et l'Assistant IA (services de l'État français).</p>
+      <p><strong>Important :</strong> les IA génèrent le contenu. Vérifiez toujours le QCM produit avant utilisation en classe.</p>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  <div class="footer-links">
+    <a href="#" onclick="showPage('home')">Accueil</a>
+    <a href="#" onclick="showPage('guide')">Guide</a>
+    <a href="#" onclick="showPage('license')">Licence CC BY-NC-SA 4.0</a>
+    <a href="#" onclick="showPage('data')">Données</a>
+    <a href="https://fr.linkedin.com/in/tomrougeaud" target="_blank">Tom Rougeaud</a>
+  </div>
+  <p>© 2026 Tom Rougeaud · Éditeur de QCM Plickers — Maths Sciences Techno · Licence CC BY-NC-SA 4.0</p>
+</footer>
+
+<script>
+const DB = {
+maths: { label:"Mathématiques", icon:"📐", color:"maths", levels: {
+
+"3eme": { label:"3ème Prépa-Métiers", bo:"BO n°31 du 30/07/2020", themes: [
+ {n:"Automatismes", i:"⚡", c:[
+   {n:"Calcul numérique", i:"🔢", bo:"Automatismes — DNB 3ème", items:[
+     "Écriture décimale des fractions simples : 1/2=0,5 ; 1/4=0,25 ; 3/4=0,75 ; 3/2=1,5 ; 5/2=2,5 ; 1/10=0,1",
+     "Comparer des nombres décimaux et calculer avec des nombres décimaux (y compris négatifs)",
+     "Simplifier, comparer des fractions ; calculer avec des fractions (+ − × ÷)",
+     "Prendre une fraction simple d'un nombre : le tiers de 18 ; le quart de 12",
+     "Déterminer a % de c quand a vaut 100, 50, 25, 10 ou 1",
+     "Écrire un même nombre sous de multiples formes : 1,2 = 6/5 = 1+1/5 = 120 %",
+     "Passer d'une écriture décimale à la notation scientifique (et réciproquement)",
+     "Connaître les carrés des entiers de 1 à 12 : 1² = 1 ; 2² = 4 ; … ; 12² = 144",
+     "Appliquer les critères de divisibilité par 2, 3, 5 et 9",
+     "Pour un entier n : exprimer son double, son triple, sa moitié, son prédécesseur, son successeur, son carré"
+   ]},
+   {n:"Calcul algébrique", i:"✏️", bo:"Automatismes — DNB 3ème", items:[
+     "Simplifier des expressions littérales (réduction de termes semblables)",
+     "Calculer la valeur numérique d'une expression algébrique (y compris avec des puissances)",
+     "Développer et factoriser une expression simple : a(b+c) = ab+ac et réciproque",
+     "Résoudre des équations du type ax = c",
+     "Résoudre des équations du type x + b = c",
+     "Résoudre des équations du type ax + b = c",
+     "Sur une droite graduée : lire l'abscisse d'un point ; placer un point d'abscisse donnée"
+   ]},
+   {n:"Géométrie et mesures", i:"📐", bo:"Automatismes — DNB 3ème", items:[
+     "Dans un repère orthogonal : lire les coordonnées d'un point ; placer un point de coordonnées données",
+     "Exploiter le codage d'une figure pour identifier des triangles, des quadrilatères particuliers, une médiatrice",
+     "Reconnaître et citer des angles : plat (180°), nul, droit (90°), aigu, obtus, opposés par le sommet, adjacents, supplémentaires",
+     "Connaître la somme des angles d'un triangle (180°) ; calculer la mesure du troisième angle",
+     "Conversions de longueur : mm, cm, m, km",
+     "Conversions d'aire : mm², cm², m², km²",
+     "Conversions de volume : cm³, dm³, m³",
+     "Conversions de masse : g, kg ; de capacité : mL, cL, dL, L ; de durée : s, min, h, jour",
+     "Équivalences : 1 dm³ = 1 L ; 1 m³ = 1 000 L",
+     "Reconnaître des solides : cube, pavé droit, prisme droit, cylindre, pyramide, cône",
+     "Périmètre d'un polygone et d'un disque (P = 2πr)",
+     "Aire d'un triangle (A = b×h/2) ; rectangle (A = L×l) ; disque (A = πr²)",
+     "Volume d'un cube, d'un pavé droit, d'un prisme droit, d'un cylindre",
+     "Théorème de Pythagore : reconnaître la configuration, appliquer l'égalité, regard critique",
+     "Théorème de Thalès (triangles emboîtés) : reconnaître, appliquer l'égalité des rapports",
+     "Trigonométrie cosinus : reconnaître la situation, appliquer cos θ = adjacent/hypoténuse",
+     "Mobiliser les propriétés de la symétrie axiale, de la symétrie centrale, de la translation"
+   ]},
+   {n:"Données et probabilités", i:"📊", bo:"Automatismes — DNB 3ème", items:[
+     "Probabilités dans des cas simples (équiprobabilité) : P(A) = cas favorables / cas possibles",
+     "Exprimer une fréquence simple",
+     "Calculer la moyenne d'une série statistique",
+     "Déterminer la médiane pour une série comportant un petit nombre de valeurs",
+     "Lire et interpréter des informations présentées sous forme de tableaux, de diagrammes et de graphiques"
+   ]},
+   {n:"Proportionnalité et fonctions", i:"📉", bo:"Automatismes — DNB 3ème", items:[
+     "Reconnaître si une situation relève de la proportionnalité ou non",
+     "Mobiliser une procédure adaptée : linéarité (× ou +) ou retour à l'unité",
+     "Appliquer une augmentation ou une diminution exprimée en pourcentage (coefficient multiplicateur)",
+     "Exploiter un graphique représentant la dépendance de deux grandeurs : lire et interpréter des valeurs"
+   ]},
+   {n:"Algorithmique", i:"💻", bo:"Automatismes — DNB 3ème", items:[
+     "Interpréter une suite d'instructions : programme de calcul",
+     "Interpréter une suite d'instructions : déplacement dans le plan",
+     "Interpréter une suite d'instructions : construction géométrique"
+   ]}
+ ]},
+ {n:"Nombres et calculs", i:"🔢", c:[
+   {n:"Entiers, décimaux et fractions", i:"½", bo:"BO 3PM 2020", items:[
+     "Nombres entiers et décimaux : lecture, écriture, comparaison, ordonnancement",
+     "Fractions : définition, fraction irréductible, opérations (+ − × ÷)",
+     "Nombres relatifs : opérations, règles des signes, valeur absolue",
+     "Encadrements et arrondis",
+     "Passage fraction ↔ décimal"
+   ]},
+   {n:"Puissances et notation scientifique", i:"⚡", bo:"BO 3PM 2020", items:[
+     "Puissances à exposant entier positif et négatif",
+     "Puissances de 10 et notation scientifique : a × 10ⁿ (1 ≤ a < 10)",
+     "Règles de calcul sur les puissances",
+     "Ordre de grandeur"
+   ]},
+   {n:"Proportionnalité et pourcentages", i:"📊", bo:"BO 3PM 2020", items:[
+     "Coefficient et tableau de proportionnalité",
+     "Quatrième proportionnelle (règle de trois)",
+     "Pourcentage d'une quantité — taux de pourcentage",
+     "Augmentation / diminution en pourcentage",
+     "Pourcentages successifs (composition)",
+     "Échelles : réduction, agrandissement, plan"
+   ]},
+   {n:"Calcul littéral et équations", i:"✏️", bo:"BO 3PM 2020", items:[
+     "Expression littérale : valeur numérique, développement, réduction",
+     "Équation du premier degré : résolution et vérification",
+     "Mise en équation d'un problème",
+     "Inéquation du 1er degré : résolution et représentation"
+   ]}
+ ]},
+ {n:"Organisation, gestion de données et fonctions", i:"📊", c:[
+   {n:"Tableaux et graphiques", i:"📋", bo:"BO 3PM 2020", items:[
+     "Lire et construire un tableau de valeurs",
+     "Diagramme en barres, histogramme, diagramme circulaire, courbe",
+     "Choisir la représentation adaptée à la situation"
+   ]},
+   {n:"Statistiques", i:"📈", bo:"BO 3PM 2020", items:[
+     "Individu, population, caractère, effectif, fréquence, cumuls",
+     "Moyenne arithmétique (pondérée ou non)",
+     "Médiane d'une série ; mode ; étendue",
+     "Interprétation des indicateurs en contexte professionnel"
+   ]},
+   {n:"Probabilités", i:"🎲", bo:"BO 3PM 2020", items:[
+     "Expérience aléatoire, univers, événement, probabilité",
+     "Événement contraire : P(Ā) = 1 − P(A)",
+     "Événements incompatibles ; fréquences et probabilités empiriques",
+     "Arbre de probabilités à 2 étapes"
+   ]},
+   {n:"Fonctions", i:"📉", bo:"BO 3PM 2020", items:[
+     "Notion de fonction : image, antécédent, notation f(x)",
+     "Tableau de valeurs et représentation graphique",
+     "Fonction linéaire f(x) = ax et fonction affine f(x) = ax + b",
+     "Sens de variation, lecture graphique (extremum, antécédents)"
+   ]}
+ ]},
+ {n:"Grandeurs et mesures", i:"📏", c:[
+   {n:"Longueurs, aires et volumes", i:"📐", bo:"BO 3PM 2020", items:[
+     "Unités de longueur, masse, capacité — tableaux de conversion",
+     "Périmètres et aires des figures planes usuelles",
+     "Volumes des solides usuels (cube, pavé, prisme, cylindre, pyramide, cône, sphère)",
+     "Conversions volumes ↔ capacités (1 dm³ = 1 L)"
+   ]},
+   {n:"Grandeurs composées et échelles", i:"⏱️", bo:"BO 3PM 2020", items:[
+     "Vitesse moyenne : v = d/t — calculs, conversions km/h ↔ m/s",
+     "Durées : calculs en h/min/s",
+     "Débit, cadence, productivité",
+     "Échelle d'un plan : calcul longueur réelle ↔ représentée"
+   ]}
+ ]},
+ {n:"Espace et géométrie", i:"📐", c:[
+   {n:"Droites, angles et figures", i:"∠", bo:"BO 3PM 2020", items:[
+     "Droites perpendiculaires et parallèles — angles associés",
+     "Types d'angles ; complémentaires et supplémentaires",
+     "Triangles : somme des angles, cas particuliers",
+     "Quadrilatères usuels : carré, rectangle, losange, parallélogramme, trapèze"
+   ]},
+   {n:"Transformations", i:"🔄", bo:"BO 3PM 2020", items:[
+     "Symétrie axiale et centrale : définition, construction, propriétés",
+     "Translation : vecteur, construction",
+     "Homothétie : rapport k, agrandissement/réduction",
+     "Figures semblables : rapport de similitude"
+   ]},
+   {n:"Théorèmes fondamentaux", i:"📐", bo:"BO 3PM 2020", items:[
+     "Théorème de Pythagore et sa réciproque",
+     "Théorème de Thalès et sa réciproque",
+     "Trigonométrie : sin θ, cos θ, tan θ dans le triangle rectangle",
+     "Calcul d'une longueur ou d'un angle par trigonométrie"
+   ]}
+ ]}
+]},
+
+"cap": { label:"CAP", bo:"BO n°30 du 23/07/2020", themes: [
+ {n:"Automatismes", i:"⚡", c:[
+   {n:"Automatismes de base (1ère année)", i:"🔢", bo:"BO CAP 2020", items:[
+     "[1] Multiplication d'un nombre par 10, par 100, par 0,1 ou par 0,01",
+     "[2] Calcul mental d'additions ou de multiplications simples",
+     "[3] Règles des signes pour les produits ou les quotients d'entiers relatifs",
+     "[4] Addition de fractions simples ; multiplication de fractions",
+     "[5] Calcul ou application d'une proportion sous différentes formes",
+     "[6] Passage d'une écriture fractionnaire à une écriture décimale",
+     "[7] Comparaison de nombres donnés en écriture décimale",
+     "[8] Comparaison de nombres rationnels donnés en écriture fractionnaire ou scientifique",
+     "[11] Détermination d'une valeur arrondie",
+     "[12] Conversion d'une durée : heures et minutes ↔ système décimal",
+     "[9] Transformation de formules",
+     "[10] Résolution d'équations du type ax = b ou a + x = b",
+     "[13] Carré d'un nombre entier ; racine carrée d'un carré parfait",
+     "[14] Conversions des unités de longueurs, d'aires et de volumes",
+     "[15] Mesure de la distance d'un point à une droite",
+     "[16] Mesure de la distance entre deux droites parallèles"
+   ]},
+   {n:"Automatismes complémentaires (2ème année)", i:"⚙️", bo:"BO CAP 2020", items:[
+     "[C1] Calcul d'un effectif total ; calcul de fréquences (mentalement dans cas simples)",
+     "[C2] Calcul de la moyenne d'une série statistique (mentalement dans cas simples)",
+     "[C3] Calcul d'une quatrième proportionnelle",
+     "[C4] Détermination d'un coefficient de proportionnalité d'un tableau",
+     "[C5] Calcul d'une valeur parmi : pourcentage ou échelle, valeur initiale, valeur finale",
+     "[C6] Résolution algébrique d'une équation se ramenant à ax + b = c",
+     "[C7] Placement d'un point connaissant ses coordonnées cartésiennes dans un plan",
+     "[C8] Exploitation de la représentation graphique d'une fonction f sur un intervalle donné",
+     "[C9] Construction d'une médiatrice, d'une parallèle, d'une perpendiculaire et d'un angle de mesure donnée",
+     "[C10] Identification dans une figure codée de deux droites perpendiculaires ou parallèles",
+     "[C11] Mesure de la longueur d'un segment",
+     "[C12] Identification d'une figure plane usuelle ou d'un solide usuel"
+   ]}
+ ]},
+ {n:"Nombres et calculs", i:"🔢", c:[
+   {n:"Nombres rationnels", i:"🔢", bo:"BO CAP 2020", items:[
+     "Entiers, décimaux, fractions : opérations et priorités",
+     "Utilisation raisonnée de la calculatrice"
+   ]},
+   {n:"Proportionnalité et pourcentages", i:"📊", bo:"BO CAP 2020", items:[
+     "Coefficient de proportionnalité — règle de trois",
+     "Pourcentage d'une quantité — taux — augmentation / diminution",
+     "Échelles : lecture d'un plan, calcul longueur réelle / représentée"
+   ]},
+   {n:"Calculs commerciaux", i:"💰", bo:"BO CAP 2020", items:[
+     "Prix HT, TVA, prix TTC (taux 5,5 % / 10 % / 20 %)",
+     "Remise, réduction, promotion",
+     "Coût de revient, bénéfice — indice simple"
+   ]}
+ ]},
+ {n:"Organisation et gestion de données", i:"📊", c:[
+   {n:"Tableaux et graphiques", i:"📋", bo:"BO CAP 2020", items:[
+     "Lire, compléter et construire un tableau de données",
+     "Diagramme en barres, histogramme, diagramme circulaire, courbe",
+     "Choisir la représentation adaptée"
+   ]},
+   {n:"Statistiques", i:"📈", bo:"BO CAP 2020", items:[
+     "Effectif, fréquence, cumuls",
+     "Moyenne, médiane, mode, étendue",
+     "Interprétation en contexte professionnel"
+   ]}
+ ]},
+ {n:"Grandeurs et mesures", i:"📏", c:[
+   {n:"Unités et conversions", i:"⚖️", bo:"BO CAP 2020", items:[
+     "Longueurs, masses, capacités, températures — conversions",
+     "Durées : calculs en h/min/s"
+   ]},
+   {n:"Aires, volumes et grandeurs composées", i:"📦", bo:"BO CAP 2020", items:[
+     "Aires des figures planes usuelles",
+     "Volumes des solides usuels",
+     "Vitesse v = d/t, débit, cadence, rendement",
+     "Conversions d'unités d'aires et de volumes"
+   ]}
+ ]},
+ {n:"Espace et géométrie", i:"📐", c:[
+   {n:"Figures et solides", i:"△", bo:"BO CAP 2020", items:[
+     "Figures planes usuelles : périmètre et aire",
+     "Solides usuels : développement (patron) et volume",
+     "Parallélisme, perpendicularité",
+     "Théorème de Pythagore et trigonométrie de base"
+   ]}
+ ]}
+]},
+
+"2nde-pro": { label:"2nde Bac Pro", bo:"BO spécial n°5 du 11/04/2019", themes: [
+ {n:"Automatismes", i:"⚡", c:[
+   {n:"Calcul numérique — items 1 à 11", i:"🔢", bo:"BO 2019 — 2nde Pro", items:[
+     "[1] Exprimer un nombre sous forme de pourcentage",
+     "[2] Utiliser des pourcentages",
+     "[3] Calculer avec des puissances de 10",
+     "[4] Écrire un nombre en notation scientifique",
+     "[5] Comparer des fractions",
+     "[6] Additionner, multiplier des fractions",
+     "[7] Calculer une quatrième proportionnelle",
+     "[8] Déterminer un arrondi",
+     "[10] Exprimer un résultat dans une unité adaptée"
+   ]},
+   {n:"Calcul algébrique — items 12 à 15", i:"✏️", bo:"BO 2019 — 2nde Pro", items:[
+     "[12] Calculer un intérêt simple, une valeur acquise",
+     "[14] Développer, factoriser, réduire une expression littérale",
+     "[15] Transformer une formule"
+   ]},
+   {n:"Fonctions — items 21 à 28", i:"📉", bo:"BO 2019 — 2nde Pro", items:[
+     "[21] Se repérer dans un repère orthogonal",
+     "[22] Rechercher l'image ou l'antécédent d'un nombre par une fonction",
+     "[24] Établir le tableau de variation d'une fonction",
+     "[25] Reconnaître l'allure d'une représentation graphique à partir d'un tableau de variations",
+     "[28] Résoudre graphiquement des équations"
+   ]},
+   {n:"Probabilités — items 32 à 38", i:"🎲", bo:"BO 2019 — 2nde Pro", items:[
+     "[32] Dénombrer des données à l'aide de tableaux ou d'arbres",
+     "[33] Calculer la probabilité d'un événement et de l'événement contraire",
+     "[34] Calculer la probabilité de la réunion d'événements incompatibles",
+     "[35] Calculer la probabilité de la réunion de deux événements",
+     "[36] Calculer la probabilité de l'intersection de deux événements",
+     "[37] Exploiter une représentation de données",
+     "[38] Calculer une probabilité conditionnelle"
+   ]},
+   {n:"Statistiques — items 39 à 42", i:"📈", bo:"BO 2019 — 2nde Pro", items:[
+     "[39] Calculer une fréquence",
+     "[40] Calculer une moyenne",
+     "[41] Lire un graphique de données chiffrées",
+     "[42] Associer un graphique avec des données"
+   ]},
+   {n:"Plan et espace — items 44 à 47", i:"📐", bo:"BO 2019 — 2nde Pro", items:[
+     "[44] Reconnaître des configurations de Pythagore ou de Thalès",
+     "[45] Calculer l'aire d'un carré, d'un rectangle, d'un disque",
+     "[46] Convertir des unités de longueur, d'aire et de volume",
+     "[47] Vérifier la cohérence grandeur-unité de mesure"
+   ]}
+ ]},
+ {n:"Algèbre – Analyse", i:"📉", c:[
+   {n:"Nombres réels et calcul numérique", i:"🔢", bo:"BO 2019 — 2nde Pro", items:[
+     "Ensembles de nombres : ℕ, ℤ, ℚ, ℝ",
+     "Fractions : simplification, opérations, comparaison",
+     "Puissances entières ; racine carrée ; notation scientifique",
+     "Proportionnalité : coefficient, règle de trois, tableau",
+     "Taux de pourcentage : calcul d'une valeur, du taux, de la base",
+     "Évolution relative : taux d'évolution = (Va − Vd)/Vd × 100",
+     "Taux global d'évolutions successives",
+     "Indice simple en base 100",
+     "Calculs commerciaux : HT, TVA, TTC, remise, marge"
+   ]},
+   {n:"Fonctions numériques", i:"📉", bo:"BO 2019 — 2nde Pro", items:[
+     "Notion de fonction : image, antécédent, notation f(x), ensemble de définition",
+     "Tableau de valeurs et représentation graphique",
+     "Lecture graphique : image, antécédent, extremum, sens de variation",
+     "Fonctions de référence : linéaire f(x)=ax, affine f(x)=ax+b",
+     "Coefficient directeur et ordonnée à l'origine (interprétation)",
+     "Fonction carré f(x)=x² : parabole, axe de symétrie, minimum",
+     "Fonction valeur absolue f(x)=|x| et inverse f(x)=1/x",
+     "Fonction racine carrée f(x)=√x"
+   ]},
+   {n:"Équations et inéquations du 1er degré", i:"✏️", bo:"BO 2019 — 2nde Pro", items:[
+     "Équation du 1er degré : résolution algébrique et vérification",
+     "Mise en équation d'un problème professionnel",
+     "Inéquation ax+b < 0 : résolution et représentation sur ℝ",
+     "Système de deux équations du 1er degré à deux inconnues",
+     "Intérêt simple : I = C₀ × t × n — calculs et applications"
+   ]}
+ ]},
+ {n:"Probabilités – Statistiques", i:"🎲", c:[
+   {n:"Statistiques à une variable", i:"📈", bo:"BO 2019 — 2nde Pro", items:[
+     "Série statistique : population, individu, caractère (qualitatif / quantitatif discret / continu)",
+     "Effectif, effectif cumulé, fréquence, fréquence cumulée",
+     "Représentations graphiques : diagramme en bâtons, histogramme, circulaire",
+     "Indicateurs de position : moyenne pondérée, médiane, quartiles Q₁ et Q₃",
+     "Indicateurs de dispersion : étendue, écart interquartile",
+     "Notion d'écart-type σ (interprétation ; calcul tableur/calculatrice)"
+   ]},
+   {n:"Probabilités", i:"🎲", bo:"BO 2019 — 2nde Pro", items:[
+     "Expérience aléatoire, univers Ω, événement, probabilité",
+     "Probabilité (équiprobabilité) — fréquences et loi des grands nombres",
+     "P(Ā) = 1 − P(A) ; événements incompatibles",
+     "Probabilité conditionnelle P(B|A) — arbre pondéré"
+   ]}
+ ]},
+ {n:"Géométrie", i:"📐", c:[
+   {n:"Trigonométrie dans le triangle rectangle", i:"△", bo:"BO 2019 — 2nde Pro", items:[
+     "cos θ = adjacent/hypoténuse ; sin θ = opposé/hypoténuse ; tan θ = opposé/adjacent",
+     "sin²θ + cos²θ = 1",
+     "Angles remarquables : 30°, 45°, 60° — valeurs exactes",
+     "Calcul d'un côté ou d'un angle par trigonométrie (calculatrice)",
+     "Applications professionnelles : pente, inclinaison, hauteur inaccessible"
+   ]},
+   {n:"Géométrie dans le plan et dans l'espace", i:"📦", bo:"BO 2019 — 2nde Pro", items:[
+     "Aires de figures composées",
+     "Volumes des solides usuels (prisme, cylindre, pyramide, cône, sphère)",
+     "Conversions d'unités de surface et de volume",
+     "Théorème de Pythagore dans l'espace"
+   ]}
+ ]}
+]},
+
+"1ere-pro": { label:"1ère Bac Pro", bo:"BO spécial n°1 du 06/02/2020", themes: [
+ {n:"Automatismes", i:"⚡", c:[
+   {n:"Calcul numérique — items 1 à 11", i:"🔢", bo:"BO 2020 — 1ère Pro", items:[
+     "[1] Exprimer un nombre sous forme de pourcentage",
+     "[2] Utiliser des pourcentages",
+     "[3] Calculer avec des puissances de 10",
+     "[4] Écrire un nombre en notation scientifique",
+     "[5] Comparer des fractions",
+     "[6] Additionner, multiplier des fractions",
+     "[7] Calculer une quatrième proportionnelle",
+     "[8] Déterminer un arrondi",
+     "[9] Appliquer des pourcentages ou une échelle",
+     "[10] Exprimer un résultat dans une unité adaptée",
+     "[11] Reconnaître une situation de proportionnalité"
+   ]},
+   {n:"Calcul algébrique — items 13 à 17", i:"✏️", bo:"BO 2020 — 1ère Pro", items:[
+     "[13] Calculer un terme d'une suite arithmétique",
+     "[14] Développer, factoriser, réduire une expression littérale",
+     "[16] Résoudre une équation du type ax = b ou a + x = b",
+     "[17] Résoudre une équation ou une inéquation du premier degré"
+   ]},
+   {n:"Fonctions — items 21 à 29", i:"📉", bo:"BO 2020 — 1ère Pro", items:[
+     "[21] Se repérer dans un repère orthogonal",
+     "[22] Rechercher l'image ou l'antécédent d'un nombre par une fonction",
+     "[23] Calculer l'ordonnée d'un point d'une courbe",
+     "[24] Établir le tableau de variation d'une fonction",
+     "[25] Reconnaître l'allure d'une représentation graphique à partir d'un tableau de variations",
+     "[26] Déterminer graphiquement les extremums globaux d'une fonction",
+     "[27] Déterminer graphiquement le coefficient directeur d'une droite",
+     "[28] Résoudre graphiquement des équations",
+     "[29] Résoudre graphiquement une équation du type f(x) = c ou f(x) < c"
+   ]},
+   {n:"Statistiques — items 39 à 43", i:"📈", bo:"BO 2020 — 1ère Pro", items:[
+     "[39] Calculer une fréquence",
+     "[40] Calculer une moyenne",
+     "[41] Lire un graphique de données chiffrées",
+     "[42] Associer un graphique avec des données",
+     "[43] Calculer des indicateurs de position ou de dispersion"
+   ]},
+   {n:"Plan et espace — items 44 à 51", i:"📐", bo:"BO 2020 — 1ère Pro", items:[
+     "[44] Reconnaître des configurations de Pythagore ou de Thalès",
+     "[45] Calculer l'aire d'un carré, d'un rectangle, d'un disque",
+     "[46] Convertir des unités de longueur, d'aire et de volume",
+     "[47] Vérifier la cohérence grandeur-unité de mesure",
+     "[48] Distinguer cercle, disque, sphère et boule",
+     "[49] Reconnaître un cube, un pavé droit, une pyramide, un cylindre, un cône ou une boule",
+     "[50] Calculer le volume d'un cube, d'un pavé droit et d'un cylindre",
+     "[51] Construire la somme de deux vecteurs"
+   ]}
+ ]},
+ {n:"Algèbre – Analyse", i:"📉", c:[
+   {n:"Fonctions polynômes de degré 2", i:"📈", bo:"BO 2020 — 1ère Pro", items:[
+     "f(x) = ax²+bx+c — forme développée, valeur numérique",
+     "Parabole : sens d'ouverture, axe de symétrie x=−b/(2a), sommet S(α,β)",
+     "Forme canonique : f(x) = a(x−α)²+β",
+     "Discriminant Δ = b²−4ac — racines de f",
+     "Factorisation : f(x) = a(x−x₁)(x−x₂) si Δ > 0",
+     "Signe de f(x) — résolution de f(x)=k, f(x)>k, f(x)<k"
+   ]},
+   {n:"Dérivation", i:"∂", bo:"BO 2020 — 1ère Pro", items:[
+     "Taux de variation [f(b)−f(a)]/(b−a) — nombre dérivé f'(a)",
+     "Dérivées : constante→0 ; x→1 ; xⁿ→nxⁿ⁻¹ ; 1/x→−1/x² ; √x→1/(2√x)",
+     "Règles : (u+v)'=u'+v' ; (ku)'=ku' ; (uv)' ; (u/v)'",
+     "Signe de f'(x) → sens de variation de f",
+     "Extremum local : f'(α)=0 avec changement de signe",
+     "Tableau de variations complet ; optimisation professionnelle"
+   ]},
+   {n:"Suites numériques", i:"∑", bo:"BO 2020 — 1ère Pro", items:[
+     "Suite définie par terme général ou par récurrence",
+     "Suite arithmétique : raison r, uₙ=u₀+nr, somme des n+1 premiers termes",
+     "Suite géométrique : raison q, uₙ=u₀×qⁿ, somme des n+1 premiers termes",
+     "Sens de variation : étude de uₙ₊₁−uₙ ou uₙ₊₁/uₙ",
+     "Convergence : suite géométrique |q|<1 → 0"
+   ]},
+   {n:"Suites arithmétiques", i:"→", bo:"BO 2020 — 1ère Pro", items:[
+     "Suite arithmétique : définition — différence constante uₙ₊₁ − uₙ = r (raison)",
+     "Raison r > 0 : suite croissante ; r < 0 : suite décroissante ; r = 0 : suite constante",
+     "Terme général : uₙ = u₀ + n × r",
+     "Passage entre deux termes quelconques : uₙ = u_p + (n−p) × r",
+     "Calcul du rang n à partir d'un terme : n = (uₙ − u₀) / r",
+     "Propriété du point milieu : u_p = (u_(p−1) + u_(p+1)) / 2",
+     "Somme des n+1 premiers termes : S = (n+1) × (u₀ + uₙ) / 2",
+     "Représentation graphique : points alignés sur une droite de pente r",
+     "Modélisation : épargne mensuelle constante, production en progression régulière",
+     "Utilisation d'un tableur pour calculer les termes et représenter la suite"
+   ]},
+   {n:"Calculs commerciaux et financiers", i:"💰", bo:"BO 2020 — 1ère Pro", items:[
+     "Intérêts simples : I = C₀ × t × n",
+     "Intérêts composés : Cₙ = C₀(1+t)ⁿ — valeur acquise et actuelle",
+     "Taux annuel et taux mensuel équivalent",
+     "Valeur acquise d'une suite d'annuités (tableur)",
+     "Mensualité d'emprunt — tableau d'amortissement : lecture"
+   ]},
+   {n:"Équations et inéquations", i:"=", bo:"BO 2020 — 1ère Pro", items:[
+     "Résolution algébrique d'une équation du 2nd degré (Δ)",
+     "Signe d'un trinôme du 2nd degré — inéquation",
+     "Système de deux équations du 1er degré à deux inconnues"
+   ]}
+ ]},
+ {n:"Probabilités – Statistiques", i:"🎲", c:[
+   {n:"Statistiques à deux variables", i:"📈", bo:"BO 2020 — 1ère Pro", items:[
+     "Nuage de points, point moyen G(x̄,ȳ)",
+     "Droite d'ajustement (moindres carrés) : ŷ = ax + b",
+     "Coefficient de corrélation r — interprétation",
+     "Prévision par ajustement — limites de l'extrapolation",
+     "Tableur (CORREL, DROITEREG, graphe)"
+   ]},
+   {n:"Probabilités — loi binomiale", i:"🎲", bo:"BO 2020 — 1ère Pro", items:[
+     "Probabilité conditionnelle P(B|A) ; indépendance ; prob. totales",
+     "Schéma de Bernoulli — loi binomiale B(n,p)",
+     "P(X=k) = C(n,k)×pᵏ×(1−p)ⁿ⁻ᵏ",
+     "Espérance E(X)=np ; écart-type σ(X)=√(npq)"
+   ]}
+ ]},
+ {n:"Géométrie", i:"📐", c:[
+   {n:"Vecteurs dans le plan", i:"→", bo:"BO 2020 — 1ère Pro", items:[
+     "Coordonnées, norme, opérations — colinéarité",
+     "Somme de vecteurs (règle du parallélogramme)",
+     "Translation et applications"
+   ]},
+   {n:"Géométrie dans l'espace", i:"🧊", bo:"BO 2020 — 1ère Pro", items:[
+     "Sections planes de solides ; distances dans l'espace",
+     "Volumes de solides composés"
+   ]}
+ ]}
+]},
+
+"terminale-pro": { label:"Terminale Bac Pro", bo:"BO spécial n°1 du 06/02/2020", themes: [
+ {n:"Automatismes", i:"⚡", c:[
+   {n:"Calcul numérique", i:"🔢", bo:"Automatismes cumulatifs 2nde/1ère/Term — BO 2020", items:[
+     "Exprimer un nombre sous forme de pourcentage",
+     "Utiliser des pourcentages (calcul d'une valeur, d'un taux, d'une base)",
+     "Calculer avec des puissances de 10",
+     "Écrire un nombre en notation scientifique",
+     "Comparer des fractions",
+     "Additionner, multiplier des fractions",
+     "Calculer une quatrième proportionnelle",
+     "Déterminer un arrondi",
+     "Appliquer des pourcentages ou une échelle",
+     "Exprimer un résultat dans une unité adaptée",
+     "Reconnaître une situation de proportionnalité"
+   ]},
+   {n:"Calcul algébrique", i:"✏️", bo:"Automatismes cumulatifs 2nde/1ère/Term — BO 2020", items:[
+     "Calculer un intérêt simple, une valeur acquise",
+     "Calculer un terme d'une suite arithmétique ou géométrique",
+     "Développer, factoriser, réduire une expression littérale",
+     "Transformer une formule",
+     "Résoudre une équation du type ax = b ou a + x = b",
+     "Résoudre une équation ou une inéquation du premier degré",
+     "Factoriser x² − a² (identité remarquable : différence de carrés)",
+     "Factoriser un polynôme de degré 2 (via le discriminant)",
+     "Développer (x + a)(x + b)",
+     "Calculer le discriminant Δ = b² − 4ac et en déduire les racines",
+     "Déterminer la dérivée d'une fonction polynôme de degré ≤ 2"
+   ]},
+   {n:"Fonctions", i:"📉", bo:"Automatismes cumulatifs 2nde/1ère/Term — BO 2020", items:[
+     "Se repérer dans un repère orthogonal",
+     "Rechercher l'image ou l'antécédent d'un nombre par une fonction",
+     "Calculer l'ordonnée d'un point d'une courbe",
+     "Établir le tableau de variation d'une fonction",
+     "Reconnaître l'allure d'une représentation graphique à partir d'un tableau de variations",
+     "Déterminer graphiquement les extremums globaux d'une fonction",
+     "Déterminer graphiquement le coefficient directeur d'une droite",
+     "Résoudre graphiquement des équations",
+     "Résoudre graphiquement f(x) = c ou f(x) < c",
+     "Visualiser les solutions de l'équation f(x) = 0",
+     "Déterminer la dérivée d'une fonction polynôme de degré ≤ 2",
+     "Lire le signe de la dérivée → sens de variation de la fonction",
+     "Identifier un extremum local à partir du signe de la dérivée"
+   ]},
+   {n:"Probabilités", i:"🎲", bo:"Automatismes cumulatifs 2nde/1ère/Term — BO 2020", items:[
+     "Dénombrer des données à l'aide de tableaux ou d'arbres",
+     "Calculer la probabilité d'un événement et de l'événement contraire",
+     "Calculer la probabilité de la réunion d'événements incompatibles",
+     "Calculer la probabilité de la réunion de deux événements",
+     "Calculer la probabilité de l'intersection de deux événements",
+     "Exploiter une représentation de données (arbre pondéré)",
+     "Calculer une probabilité conditionnelle",
+     "Identifier un schéma de Bernoulli et appliquer la loi binomiale B(n,p)",
+     "Calculer P(X=k) pour la loi binomiale (calculatrice ou formule)",
+     "Calculer l'espérance E(X) = np d'une loi binomiale",
+     "Calculer l'écart-type σ(X) = √(npq) d'une loi binomiale"
+   ]},
+   {n:"Statistiques", i:"📈", bo:"Automatismes cumulatifs 2nde/1ère/Term — BO 2020", items:[
+     "Calculer une fréquence",
+     "Calculer une moyenne (arithmétique simple ou pondérée)",
+     "Lire un graphique de données chiffrées",
+     "Associer un graphique avec des données",
+     "Calculer des indicateurs de position (médiane, quartiles Q₁ et Q₃)",
+     "Calculer des indicateurs de dispersion (étendue, écart interquartile, écart-type)",
+     "Représenter un nuage de points et calculer le point moyen G(x̄, ȳ)",
+     "Lire et interpréter l'équation de la droite d'ajustement ŷ = ax + b",
+     "Interpréter le coefficient de corrélation r (r proche de ±1 = bonne liaison linéaire)",
+     "Utiliser la droite d'ajustement pour effectuer une prévision"
+   ]},
+   {n:"Plan et espace", i:"📐", bo:"Automatismes cumulatifs 2nde/1ère/Term — BO 2020", items:[
+     "Reconnaître des configurations de Pythagore ou de Thalès",
+     "Calculer l'aire d'un carré, d'un rectangle, d'un disque",
+     "Convertir des unités de longueur, d'aire et de volume",
+     "Vérifier la cohérence grandeur-unité de mesure",
+     "Distinguer cercle, disque, sphère et boule",
+     "Reconnaître un cube, un pavé droit, une pyramide, un cylindre, un cône ou une boule",
+     "Calculer le volume d'un cube, d'un pavé droit et d'un cylindre",
+     "Construire la somme de deux vecteurs",
+     "Construire le produit d'un vecteur par un nombre",
+     "Calculer les coordonnées d'un vecteur dans un repère",
+     "Calculer la norme d'un vecteur : ‖AB‖ = √((xB−xA)² + (yB−yA)²)",
+     "Calculer le produit scalaire de deux vecteurs par les coordonnées",
+     "Identifier des vecteurs orthogonaux (produit scalaire = 0)"
+   ]}
+ ]},
+ {n:"Statistiques et Probabilités", i:"📊", c:[
+   {n:"Chapitre 1 — Statistiques à deux variables", i:"📈", bo:"BO 2020 — Term Pro", items:[
+     "Rappel : nuage, point moyen, droite d'ajustement, coefficient r",
+     "Calcul de r et r² (tableur CORREL) — qualité de l'ajustement",
+     "Prévision — limites de l'extrapolation",
+     "Ajustements non linéaires (exponentiel, puissance) — tableur"
+   ]},
+   {n:"Chapitre 2 — Probabilités", i:"🎲", bo:"BO 2020 — Term Pro", items:[
+     "Loi binomiale B(n,p) : rappel, calcul de P(X=k), P(X≤k), P(X≥k)",
+     "Espérance np et écart-type √(npq)",
+     "Intervalle de fluctuation au seuil de 95 %",
+     "Prise de décision : seuil de signification (contrôle qualité)"
+   ]}
+ ]},
+ {n:"Algèbre – Analyse", i:"📉", c:[
+   {n:"Chapitre 3 — Suites numériques", i:"∑", bo:"BO 2020 — Term Pro", items:[
+     "Rappel suites arithmétiques/géométriques + sens de variation par uₙ₊₁−uₙ",
+     "Limite d'une suite géométrique ; applications (finance, biologie)"
+   ]},
+   {n:"Suites géométriques", i:"×", bo:"BO 2020 — Term Pro", items:[
+     "Suite géométrique : définition — rapport constant uₙ₊₁ / uₙ = q (raison), q ≠ 0",
+     "Raison q > 1 : suite croissante et divergente ; 0 < q < 1 : suite décroissante, converge vers 0",
+     "q < 0 : termes alternativement positifs et négatifs",
+     "Terme général : uₙ = u₀ × qⁿ",
+     "Passage entre deux termes : uₙ = u_p × qⁿ⁻ᵖ",
+     "Calcul du rang n : utilisation du logarithme décimal n = log(uₙ/u₀) / log q",
+     "Somme des n+1 premiers termes (q ≠ 1) : S = u₀ × (1 − qⁿ⁺¹) / (1 − q)",
+     "Limite : si |q| < 1 alors uₙ → 0 ; si q > 1 alors uₙ → +∞",
+     "Modèle d'intérêts composés : Cₙ = C₀ × (1+t)ⁿ — identification comme suite géom. de raison q=1+t",
+     "Modèle de croissance démographique ou radioactive : identifier la raison et calculer",
+     "Utilisation du tableur pour calculer les termes, tracer la courbe et faire des prévisions"
+   ]},
+   {n:"Chapitre 4 — Fonctions polynômes de degré 3", i:"x³", bo:"BO 2020 — Term Pro", items:[
+     "f(x)=ax³+bx²+cx+d ; f'(x)=3ax²+2bx+c",
+     "Tableau de variations, extrema locaux ; optimisation professionnelle"
+   ]},
+   {n:"Chapitre 5 — Fonctions exponentielles et logarithme décimal", i:"eˣ", bo:"BO 2020 — Term Pro", items:[
+     "f(x)=aˣ — propriétés algébriques, sens de variation",
+     "log₁₀ : définition, propriétés : log(ab)=log a+log b, log(aⁿ)=n log a",
+     "Résolution d'équations exponentielles et logarithmiques",
+     "Applications : doublement, pH, niveau sonore (dB)"
+   ]},
+   {n:"Chapitre 6 — Calculs commerciaux et financiers", i:"💰", bo:"BO 2020 — Term Pro", items:[
+     "Intérêts composés : Cₙ=C₀(1+t)ⁿ — calcul de t ou n (log)",
+     "Annuités : valeur acquise ; mensualité d'emprunt",
+     "Tableau d'amortissement complet"
+   ]}
+ ]},
+ {n:"Géométrie", i:"📐", c:[
+   {n:"Chapitre 7 — Vecteurs", i:"→", bo:"BO 2020 — Term Pro", items:[
+     "Produit scalaire : u·v = ‖u‖‖v‖cos θ = x₁x₂+y₁y₂",
+     "Orthogonalité (produit scalaire nul) ; calcul d'angle",
+     "Équation cartésienne d'une droite ; distance point-droite"
+   ]},
+   {n:"Chapitre 8 — Trigonométrie", i:"△", bo:"BO 2020 — Term Pro", items:[
+     "Formules d'addition : cos(a+b), sin(a+b) ; formules de duplication",
+     "Équations trigonométriques sur [0;2π]",
+     "Loi des sinus et loi d'Al-Kashi"
+   ]}
+ ]},
+ {n:"Poursuite d'études", i:"🎓", c:[
+   {n:"Chapitre 9 — Fonctions ln et exponentielle", i:"ln", bo:"BO 2020 — PE", items:[
+     "eˣ : définition, (eˣ)'=eˣ, propriétés algébriques",
+     "ln x : réciproque de eˣ, propriétés, dérivée (ln x)'=1/x",
+     "Dérivées composées : (eᵘ)'=u'eᵘ ; (ln u)'=u'/u",
+     "Applications : modèles de croissance, temps de demi-vie"
+   ]},
+   {n:"Chapitre 10 — Calcul intégral", i:"∫", bo:"BO 2020 — PE", items:[
+     "∫[a,b]f(x)dx = F(b)−F(a) — aire algébrique",
+     "Primitives : constante→kx ; xⁿ→xⁿ⁺¹/(n+1) ; 1/x→ln|x| ; eˣ→eˣ",
+     "Intégration par parties (cas simples) ; valeur moyenne"
+   ]},
+   {n:"Chapitre 11 — Nombres complexes", i:"i", bo:"BO 2020 — PE", items:[
+     "i²=−1 ; z=a+ib — Re(z), Im(z), conjugué, module",
+     "Forme trigonométrique z=r(cosθ+i sinθ) ; formule d'Euler",
+     "Résolution de z²+pz+q=0 avec Δ<0"
+   ]},
+   {n:"Chapitre 12 — Produit scalaire", i:"·", bo:"BO 2020 — PE", items:[
+     "Produit scalaire approfondi dans le plan",
+     "Équation d'un cercle, distance point-droite",
+     "Extension dans l'espace R³ (notions)"
+   ]}
+ ]}
+]},
+
+"upe2a": { label:"UPE2A", bo:"Socle commun — prépa CAP", themes: [
+ {n:"Nombres et calculs — Fondamentaux", i:"🔢", c:[
+   {n:"Nombres entiers et opérations", i:"🔢", bo:"Socle cycle 3 — base", items:[
+     "Lire, écrire, comparer et ordonner des entiers jusqu'au million",
+     "Tables de multiplication (2 à 9) : mémorisation et automatisation",
+     "Addition et soustraction posées : sans et avec retenue",
+     "Multiplication posée de deux entiers",
+     "Division euclidienne : quotient et reste (sans calculatrice)",
+     "Tableau de numération : unités, dizaines, centaines, milliers, millions",
+     "Utilisation de la calculatrice : touches de base et vérification du résultat",
+     "Calcul du nombre de portions, de pièces, de doses (contexte professionnel)",
+     "Calcul de quantités à commander (proportionnalité simple)",
+     "Lire une facture ou un bon de commande simple"
+   ]},
+   {n:"Nombres décimaux et fractions", i:"½", bo:"Socle cycle 3-4", items:[
+     "Lire, écrire et comparer des nombres décimaux (jusqu'aux millièmes)",
+     "Opérations sur les décimaux (+ − × ÷)",
+     "Fractions usuelles : 1/2, 1/3, 1/4, 3/4 — signification et calcul",
+     "Passage fraction ↔ décimal (cas simples : 1/2 = 0,5 ; 1/4 = 0,25 ; 3/4 = 0,75)",
+     "Arrondir à l'unité, au dixième, au centième",
+     "Calculer une demi-dose, un quart de quantité (dosage, recette, médicament)",
+     "Lire un prix décimal et calculer une somme"
+   ]}
+ ]},
+ {n:"Proportionnalité et pourcentages — Prépa CAP", i:"📊", c:[
+   {n:"Proportionnalité et règle de trois", i:"📊", bo:"Socle cycle 4 — prépa CAP", items:[
+     "Identifier une situation de proportionnalité (tableau à deux colonnes)",
+     "Coefficient de proportionnalité : trouver k dans y = kx",
+     "Règle de trois (quatrième proportionnelle) : calcul et vérification",
+     "Tableau de proportionnalité : compléter et utiliser",
+     "Proportionnalité inverse : notion et exemples (vitesse/durée, effectif/coût unitaire)",
+     "Calculer la quantité nécessaire pour un nombre de portions donné",
+     "Calculer un prix total à partir d'un prix unitaire",
+     "Lire un tarif et calculer le coût pour une quantité donnée",
+     "Agrandir ou réduire une recette, une formule (chimie, cuisine, bâtiment…)"
+   ]},
+   {n:"Pourcentages et calculs commerciaux", i:"💰", bo:"Prépa CAP — essentiel", items:[
+     "Pourcentage d'une quantité : 10 % de 200 = 20",
+     "Taux de pourcentage : calcul du taux (part / total × 100)",
+     "Augmentation et diminution en % (coefficient multiplicateur)",
+     "Prix HT (hors taxes) et prix TTC (toutes taxes comprises)",
+     "TVA : taux 5,5 % (alimentaire, livres), 10 % (restauration, travaux), 20 % (général)",
+     "Calcul de la TVA : TVA = HT × taux ; TTC = HT × (1 + taux)",
+     "Remise, réduction, promotion : calcul du montant et du prix réduit",
+     "Coût de revient, prix de vente, marge bénéficiaire",
+     "Lire une étiquette de prix et vérifier le calcul de TVA",
+     "Calculer le prix TTC à partir du HT",
+     "Appliquer une remise commerciale",
+     "Comparer deux offres tarifaires"
+   ]}
+ ]},
+ {n:"Grandeurs et mesures — Vie professionnelle", i:"📏", c:[
+   {n:"Unités et conversions", i:"⚖️", bo:"Prépa CAP — essentiel", items:[
+     "Longueurs : mm, cm, dm, m, km — tableau de conversion",
+     "Masses : mg, g, dag, kg, t — tableau de conversion",
+     "Capacités / volumes : mL, cL, dL, L, m³ — tableau de conversion",
+     "Temps : secondes, minutes, heures, jours — conversions et calculs",
+     "Températures : lecture d'un thermomètre en °C",
+     "Equivalences utiles : 1 L = 1 dm³ = 1 000 mL ; 1 m² = 10 000 cm²",
+     "Convertir des recettes (grammes ↔ kilogrammes, centilitres ↔ litres)",
+     "Lire des étiquettes professionnelles (grammage, contenance, dosage)",
+     "Calculer une durée de travail"
+   ]},
+   {n:"Grandeurs composées", i:"⏱️", bo:"Prépa CAP — essentiel", items:[
+     "Vitesse : v = d/t — calcul et conversions (km/h, m/s, m/min)",
+     "Débit : quantité produite / temps — applications (production, cuisine, pharmacie)",
+     "Prix unitaire × quantité = prix total",
+     "Salaire : taux horaire × durée = salaire brut (notions)",
+     "Rendement : résultat obtenu / résultat attendu × 100 %"
+   ]},
+   {n:"Lecture de plans et d'échelles", i:"🗺️", bo:"Prépa CAP — essentiel", items:[
+     "Définition d'une échelle (longueur réelle / longueur représentée)",
+     "Calculer la longueur réelle à partir de la longueur sur le plan",
+     "Calculer la longueur à reporter sur un plan",
+     "Lecture d'un plan d'atelier, d'un plan de cuisine, d'un plan de chantier",
+     "Orientation sur un plan : légende, nord, distances"
+   ]}
+ ]},
+ {n:"Géométrie — Fondamentaux et applications", i:"📐", c:[
+   {n:"Figures planes et solides", i:"△", bo:"Prépa CAP", items:[
+     "Reconnaître les figures planes : triangle, carré, rectangle, losange, cercle, trapèze",
+     "Reconnaître les solides : cube, pavé, prisme, cylindre, pyramide, sphère",
+     "Axe de symétrie d'une figure (pliage, miroir)",
+     "Angle droit : reconnaissance et tracé (équerre)",
+     "Parallélisme et perpendicularité dans le plan",
+     "Périmètre du carré, rectangle, triangle, cercle (C = πd)",
+     "Aire du carré, rectangle, triangle (A = b×h/2), disque (A = πr²)",
+     "Volume du cube, pavé droit (V = L×l×h)",
+     "Théorème de Pythagore : vérification et calcul simple",
+     "Lire les cotes d'un dessin technique (pièce, recette, schéma d'électricité)"
+   ]}
+ ]},
+ {n:"Données et tableaux — Lecture professionnelle", i:"📊", c:[
+   {n:"Tableaux, graphiques et statistiques simples", i:"📋", bo:"Prépa CAP", items:[
+     "Lire et compléter un tableau de données (planning, commandes, résultats)",
+     "Diagramme en barres et histogramme : lecture",
+     "Diagramme circulaire : lecture (parts en %)",
+     "Moyenne simple d'une série de nombres",
+     "Lecture d'un graphique cartésien (axe des x, axe des y, unités)",
+     "Interpréter une tendance (montante, descendante, stable)"
+   ]},
+   {n:"Outils numériques — Introduction", i:"💻", bo:"Prépa CAP", items:[
+     "Clavier : touches alphabétiques, numériques, touches de fonctions",
+     "Tableur (LibreOffice Calc ou Excel) : cellules, lignes, colonnes, saisie",
+     "Formule simple dans un tableur : =A1+B1, =SOMME(A1:A5), =MOYENNE(A1:A5)",
+     "Recherche simple sur internet : mots-clés, lecture d'une page web",
+     "Traitement de texte : saisie d'un texte simple, enregistrement"
+   ]}
+ ]}
+]}
+
+}},
+
+physique: { label:"Physique-Chimie", icon:"🔬", color:"physique", levels: {
+
+"3eme": { label:"3ème", bo:"BO spécial n°11 du 26/11/2015", themes: [
+ {n:"Organisation et transformations de la matière", i:"⚗️", c:[
+   {n:"Atomes, molécules et ions", i:"⚛️", bo:"BO cycle 4 — 3ème", items:[
+     "Structure de l'atome : noyau (protons, neutrons) et électrons",
+     "Numéro atomique Z et nombre de masse A",
+     "Isotopes : même Z, A différent",
+     "Molécule et formule chimique (eau H₂O, dioxygène O₂, dioxyde de carbone CO₂…)",
+     "Ions : cations et anions (formation, charges)",
+     "Tableau périodique : familles chimiques, lecture",
+     "Loi de conservation de la masse lors d'une réaction chimique"
+   ]},
+   {n:"Mélanges et solutions", i:"🧪", bo:"BO cycle 4 — 3ème", items:[
+     "Corps pur et mélange",
+     "Mélanges homogènes et hétérogènes",
+     "Solutions : soluté, solvant, dissolution",
+     "Concentration massique et volumique",
+     "pH d'une solution : définition, indicateurs colorés, pHmètre",
+     "Acides et bases : définition et exemples usuels",
+     "Techniques de séparation : filtration, distillation, chromatographie"
+   ]},
+   {n:"Réactions chimiques", i:"🔥", bo:"BO cycle 4 — 3ème", items:[
+     "Réaction chimique : réactifs, produits, équation bilan",
+     "Équilibrage d'une équation chimique",
+     "Combustions : complète (CO₂ + H₂O) et incomplète (CO)",
+     "Réactions acide-base : neutralisation",
+     "Oxydoréduction : notion et exemples (rouille, combustion…)",
+     "Synthèse de molécules simples (aspirine, nylon…) — notion"
+   ]}
+ ]},
+ {n:"Mouvement et interactions", i:"🚀", c:[
+   {n:"Description du mouvement", i:"🏃", bo:"BO cycle 4 — 3ème", items:[
+     "Référentiel et relativité du mouvement",
+     "Trajectoire : rectiligne, circulaire, curviligne",
+     "Vitesse : définition, calcul (v = d/t), unités (m/s, km/h)",
+     "Mouvement uniforme et mouvement accéléré",
+     "Représentation du vecteur vitesse (norme, direction, sens)"
+   ]},
+   {n:"Forces et interactions", i:"⚖️", bo:"BO cycle 4 — 3ème", items:[
+     "Force : définition, caractéristiques (point d'application, direction, sens, valeur)",
+     "Représentation d'une force par un vecteur (flèche)",
+     "Poids : P = m × g (g = 9,8 N/kg sur Terre)",
+     "Force normale, frottement, tension d'un fil",
+     "Principe d'inertie : corps en équilibre ou en mouvement rectiligne uniforme",
+     "Loi de gravitation universelle (notion)"
+   ]}
+ ]},
+ {n:"Ondes et signaux", i:"📡", c:[
+   {n:"Lumière et ondes lumineuses", i:"💡", bo:"BO cycle 4 — 3ème", items:[
+     "Propagation de la lumière : rectiligne dans un milieu homogène",
+     "Vitesse de la lumière : c = 3 × 10⁸ m/s",
+     "Sources lumineuses primaires et secondaires",
+     "Dispersion de la lumière blanche (prisme, arc-en-ciel)",
+     "Couleurs : synthèse additive (RGB) et soustractive (CMJ)",
+     "Absorption et transmission de la lumière par un objet",
+     "Lumières invisibles : UV, IR (notions et applications)"
+   ]},
+   {n:"Son et ondes sonores", i:"🔊", bo:"BO cycle 4 — 3ème", items:[
+     "Production du son : vibration d'un objet (corde, membrane…)",
+     "Propagation du son : milieux de propagation, vitesse",
+     "Caractéristiques d'un son : hauteur (fréquence), intensité, timbre",
+     "Fréquence et période d'un son : f = 1/T",
+     "Niveau sonore en décibels (dB) et risques auditifs",
+     "Représentation oscilloscopique d'un son"
+   ]}
+ ]},
+ {n:"L'énergie et ses conversions", i:"⚡", c:[
+   {n:"Circuits électriques", i:"🔌", bo:"BO cycle 4 — 3ème", items:[
+     "Dipôles : générateur, résistance, lampe, moteur, interrupteur",
+     "Circuit en série et en dérivation",
+     "Intensité du courant I (ampère) — loi des nœuds",
+     "Tension électrique U (volt) — loi des mailles",
+     "Loi d'Ohm : U = R × I — calculs",
+     "Puissance électrique : P = U × I (watt)",
+     "Énergie électrique : E = P × t (joule, kWh)"
+   ]},
+   {n:"Conversions et transferts d'énergie", i:"🔋", bo:"BO cycle 4 — 3ème", items:[
+     "Formes d'énergie : mécanique, électrique, thermique, chimique, rayonnante, nucléaire",
+     "Conservation de l'énergie : ΔE_total = 0",
+     "Conversions d'énergie : chaîne de conversion",
+     "Rendement η = Énergie utile / Énergie fournie × 100 %",
+     "Énergie renouvelable et non renouvelable",
+     "Bilan énergétique d'un système"
+   ]}
+ ]}
+]},
+
+"cap": { label:"CAP", bo:"BO n°30 du 23/07/2020", themes: [
+ {n:"Chimie des solutions et de la matière", i:"⚗️", c:[
+   {n:"Solutions et pH", i:"🧪", bo:"BO 2020 — CAP", items:[
+     "Solution aqueuse : soluté, solvant, dissolution",
+     "Concentration massique d'une solution (g/L)",
+     "pH d'une solution : mesure et interprétation",
+     "Acides, bases, solutions neutres : exemples professionnels (pH sang, piscine…)",
+     "Dilution : principe et calcul de la concentration finale"
+   ]},
+   {n:"Matière et transformations", i:"🔥", bo:"BO 2020 — CAP", items:[
+     "États de la matière : solide, liquide, gaz — changements d'état",
+     "Mélanges homogènes et hétérogènes : exemples professionnels",
+     "Réactions chimiques : réactifs, produits — exemples du secteur",
+     "Combustion : conditions, produits, risques (CO)",
+     "Oxydation, rouille, corrosion : mécanismes et prévention"
+   ]}
+ ]},
+ {n:"Physique et technologie", i:"⚡", c:[
+   {n:"Électricité", i:"🔌", bo:"BO 2020 — CAP", items:[
+     "Circuit électrique : générateur, récepteur, fils, interrupteur",
+     "Tension U (volt), intensité I (ampère), résistance R (ohm)",
+     "Loi d'Ohm : U = R × I — applications",
+     "Puissance électrique P = U × I — calculs et facture",
+     "Énergie électrique E = P × t (kWh) — consommation",
+     "Risques électriques et règles de sécurité",
+     "Courant alternatif et courant continu : distinctions"
+   ]},
+   {n:"Optique et lumière", i:"💡", bo:"BO 2020 — CAP", items:[
+     "Sources de lumière : incandescence, fluorescence, LED",
+     "Propagation rectiligne de la lumière",
+     "Indice de réfraction et loi de Snell-Descartes (notions)",
+     "Couleurs et synthèse additive/soustractive (secteur textile, peinture, alimentaire…)",
+     "Lumières visibles et invisibles : UV (stérilisation, tanning), IR (télédétection)"
+   ]},
+   {n:"Mécanique et acoustique", i:"⚙️", bo:"BO 2020 — CAP", items:[
+     "Forces : poids, poussée d'Archimède, frottement",
+     "Pression : définition P = F/S, applications (pneumatiques, hydraulique, cuisson sous pression)",
+     "Son : fréquence, intensité, décibels — risques auditifs professionnels",
+     "Vibrations et résonance (applications industrielles)"
+   ]}
+ ]},
+ {n:"Physique et énergie", i:"🔋", c:[
+   {n:"Énergie et conversions", i:"⚡", bo:"BO 2020 — CAP", items:[
+     "Formes d'énergie : électrique, thermique, mécanique, chimique",
+     "Conversion d'énergie : moteur, résistance chauffante, panneau solaire",
+     "Rendement énergétique : calcul et interprétation",
+     "Facture d'électricité : kWh, tarif, calcul du coût",
+     "Énergies renouvelables : solaire, éolien, hydraulique — avantages/inconvénients"
+   ]},
+   {n:"Transferts thermiques", i:"🌡️", bo:"BO 2020 — CAP", items:[
+     "Température : mesure (°C, °F, K), instruments",
+     "Trois modes de transfert thermique : conduction, convection, rayonnement",
+     "Application : isolation thermique des bâtiments, stockage des aliments",
+     "Quantité de chaleur Q = m × c × ΔT (notion et calcul guidé)",
+     "Changements d'état et chaleur latente (cuisson, réfrigération)"
+   ]}
+ ]}
+]},
+
+"2nde-pro": { label:"2nde Bac Pro", bo:"BO spécial n°2 du 19/02/2009", themes: [
+ {n:"Chimie des solutions", i:"⚗️", c:[
+   {n:"Solutions et concentrations", i:"🧪", bo:"BO 2009 Module C1 — 2nde Pro", items:[
+     "Dissolution : soluté, solvant, solution",
+     "Concentration massique et volumique",
+     "Calcul de masse de soluté et de volume de solution",
+     "Dilution : calcul de la concentration après dilution",
+     "Dosage par étalonnage (courbe d'étalonnage)",
+     "pH et indicateurs colorés : mesures et interprétation",
+     "Application : contrôle de qualité (pH d'une boisson, d'un sol…)"
+   ]},
+   {n:"Acides, bases, neutralisation", i:"⚖️", bo:"BO 2009 Module C1 — 2nde Pro", items:[
+     "Acides forts et bases fortes : exemples industriels",
+     "Réaction acide-base : neutralisation (acide + base → sel + eau)",
+     "Dosage acido-basique (titrage) : principe et calcul",
+     "Applications professionnelles : nettoyage, traitement des eaux, conserves"
+   ]}
+ ]},
+ {n:"Physique — Électricité", i:"⚡", c:[
+   {n:"Lois des circuits", i:"🔌", bo:"BO 2009 Module E1 — 2nde Pro", items:[
+     "Loi des nœuds (courants en parallèle)",
+     "Loi des mailles (tensions en série)",
+     "Loi d'Ohm : U = RI — calculs",
+     "Association de résistances en série et en parallèle",
+     "Puissance et énergie électrique : P = UI, E = Pt",
+     "Effet Joule : P = RI² — applications (fusible, radiateur)"
+   ]},
+   {n:"Condensateur et bobine (notions)", i:"🔋", bo:"BO 2009 Module E1 — 2nde Pro", items:[
+     "Condensateur : charge, décharge, énergie stockée (notions)",
+     "Bobine : inductance, courant alternatif (notions)",
+     "Circuit RC : courbe de charge/décharge (lecture et interprétation)",
+     "Applications : filtrage, démarrage de moteur"
+   ]}
+ ]},
+ {n:"Physique — Optique et mesures", i:"💡", c:[
+   {n:"Optique géométrique", i:"🔭", bo:"BO 2009 Module O1 — 2nde Pro", items:[
+     "Réflexion de la lumière : loi de Descartes (angle d'incidence = angle de réflexion)",
+     "Réfraction : loi de Snell-Descartes, indice de réfraction",
+     "Réflexion totale interne (fibre optique)",
+     "Lentilles convergentes : foyer, distance focale, construction d'image",
+     "Instruments d'optique : loupe, microscope, appareil photo (notions)",
+     "Applications professionnelles : contrôle qualité, inspection, optométrie"
+   ]}
+ ]}
+]},
+
+"1ere-pro": { label:"1ère Bac Pro", bo:"BO spécial n°2 du 19/02/2009", themes: [
+ {n:"Chimie organique et santé", i:"⚗️", c:[
+   {n:"Chimie organique", i:"🧬", bo:"BO 2009 Module C2 — 1ère Pro", items:[
+     "Carbone : tétravalence, liaison C-C, C-H, C-O, C-N",
+     "Formule développée et semi-développée",
+     "Familles fonctionnelles : alcanes, alcènes, alcools, aldéhydes, cétones, acides carboxyliques, esters",
+     "Nomenclature de base des composés organiques",
+     "Réactions : oxydation des alcools, estérification (ester de synthèse)",
+     "Polymères : notion, exemples (PVC, polyéthylène, nylon)"
+   ]},
+   {n:"Chimie et santé", i:"💊", bo:"BO 2009 — 1ère Pro", items:[
+     "Médicaments : principe actif, excipient, forme galénique",
+     "Dissolution de médicaments : concentration, dosage",
+     "Risques chimiques : toxicité, pictogrammes de danger (GHS/CLP)",
+     "Fiches de données de sécurité (FDS) : lecture et interprétation",
+     "Règles de sécurité en laboratoire ou atelier chimique"
+   ]}
+ ]},
+ {n:"Physique — Mécanique", i:"⚙️", c:[
+   {n:"Forces et équilibre", i:"⚖️", bo:"BO 2009 Module M1 — 1ère Pro", items:[
+     "Vecteur force : norme, direction, sens, point d'application",
+     "Poids P = mg, réaction normale, frottement",
+     "Conditions d'équilibre d'un solide (bilan des forces)",
+     "Moment d'une force : calcul, équilibre en rotation",
+     "Levier, treuil, palan : avantage mécanique"
+   ]},
+   {n:"Pression des fluides", i:"💧", bo:"BO 2009 Module M1 — 1ère Pro", items:[
+     "Pression : P = F/S (Pa, bar, atm) — calculs",
+     "Pression hydrostatique : P = ρgh",
+     "Poussée d'Archimède : F_A = ρ_fluide × V × g",
+     "Principe de Pascal : transmission des pressions",
+     "Applications : pneumatique, hydraulique, plongée, aviation"
+   ]}
+ ]},
+ {n:"Physique — Ondes et signaux", i:"📡", c:[
+   {n:"Ondes mécaniques et sonores", i:"🔊", bo:"BO 2009 — 1ère Pro", items:[
+     "Onde mécanique : transversale et longitudinale",
+     "Célérité, longueur d'onde, fréquence, période : λ = v × T",
+     "Ondes sonores : fréquence, intensité, spectre",
+     "Niveaux sonores en dB — réglementation et risques professionnels",
+     "Ultrasons et infrasons : applications (échographie, détection…)",
+     "Vibrations et résonance : risques pour la santé (TMS)"
+   ]}
+ ]}
+]},
+
+"terminale-pro": { label:"Terminale Bac Pro", bo:"BO spécial n°2 du 19/02/2009", themes: [
+ {n:"Chimie — Synthèse et contrôle", i:"⚗️", c:[
+   {n:"Synthèse de molécules", i:"🧬", bo:"BO 2009 — Terminale Pro", items:[
+     "Synthèse organique : protocole, rendement",
+     "Contrôle de pureté : chromatographie, spectroscopie (IR, UV — notions)",
+     "Estérification et hydrolyse : équilibre et catalyse",
+     "Polymères de synthèse : propriétés et applications industrielles",
+     "Green chemistry : économie d'atomes, solvants verts (notions)"
+   ]}
+ ]},
+ {n:"Physique — Électricité et mécanique avancées", i:"⚡", c:[
+   {n:"Circuits en régime alternatif", i:"🔌", bo:"BO 2009 Module E2 — Terminale Pro", items:[
+     "Tension alternative sinusoïdale : valeur efficace, valeur maximale",
+     "Fréquence du réseau (50 Hz) et pulsation ω = 2πf",
+     "Impédance d'un condensateur et d'une bobine",
+     "Circuit RLC série : résonance, applications (filtre)",
+     "Puissance active, réactive, apparente : cos φ",
+     "Moteurs électriques : principe, applications industrielles"
+   ]},
+   {n:"Mécanique avancée", i:"⚙️", bo:"BO 2009 Module M2 — Terminale Pro", items:[
+     "Lois de Newton : principe d'inertie, 2ème loi (F = ma), 3ème loi",
+     "Travail et énergie mécanique : W = F × d × cos θ",
+     "Énergie cinétique, potentielle, mécanique totale",
+     "Théorème de l'énergie cinétique",
+     "Puissance mécanique P = F × v",
+     "Rendement d'un système mécanique"
+   ]}
+ ]},
+ {n:"Physique — Thermique et énergie", i:"🔋", c:[
+   {n:"Thermique avancée", i:"🌡️", bo:"BO 2009 Module T1 — Terminale Pro", items:[
+     "Transfert thermique par conduction : loi de Fourier (notion)",
+     "Résistance thermique R = e/(λ × S) — calcul et isolation",
+     "Coefficient global de transfert thermique K (notions)",
+     "Diagramme enthalpique (réfrigération) — lecture",
+     "Bilan thermique d'un bâtiment ou d'un système",
+     "Climatisation, pompe à chaleur : principe et coefficient de performance (COP)"
+   ]}
+ ]}
+]},
+
+"upe2a": { label:"UPE2A", bo:"Socle commun", themes: [
+ {n:"La matière (socle)", i:"⚗️", c:[
+   {n:"États et transformations de la matière", i:"💧", bo:"Socle — fondamentaux", items:[
+     "Les trois états de la matière : solide, liquide, gaz",
+     "Changements d'état : fusion, solidification, vaporisation, condensation",
+     "Température de changement d'état (eau : 0 °C / 100 °C)",
+     "Mélanges simples : eau + sel, eau + huile — caractéristiques",
+     "Dissolution dans l'eau : sucre, sel — dissolution visible"
+   ]}
+ ]},
+ {n:"L'électricité (socle)", i:"⚡", c:[
+   {n:"Circuits simples", i:"🔌", bo:"Socle — fondamentaux", items:[
+     "Composants électriques : pile, ampoule, interrupteur, fils",
+     "Circuit série : courant qui passe par tous les composants",
+     "Circuit en dérivation : chaque composant reçoit la même tension",
+     "Allumer et éteindre une lampe : rôle de l'interrupteur",
+     "Règles de sécurité électrique (ne pas toucher, signaux de danger)"
+   ]}
+ ]},
+ {n:"L'énergie (socle)", i:"🔋", c:[
+   {n:"Formes et économies d'énergie", i:"💡", bo:"Socle — fondamentaux", items:[
+     "Formes d'énergie : lumineuse, électrique, thermique (chaleur), mécanique",
+     "Sources d'énergie : Soleil, pétrole, gaz, électricité",
+     "Conversion simple : ampoule (électricité → lumière + chaleur)",
+     "Économies d'énergie : gestes simples (éteindre les lumières, ne pas gaspiller l'eau chaude)",
+     "Label énergétique : lecture simple (A++, A, B…)"
+   ]}
+ ]}
+]}
+
+}},
+
+techno: { label:"Technologie", icon:"⚙️", color:"techno", levels: {
+
+"3eme": { label:"3ème — Cycle 4", bo:"BO n°9 du 29/02/2024", themes: [
+ {n:"Usages, interactions et évolutions des OST", i:"🌐", c:[
+   {n:"Évolution des OST", i:"📈", bo:"Repères 3ème — BO 2024", items:[
+     "Identifier les innovations de rupture attachées à l'évolution d'un OST",
+     "Mettre en relation une découverte scientifique avec ses développements technologiques",
+     "Exprimer dans un argumentaire court l'incidence d'un OST sur la société",
+     "Exprimer dans un argumentaire court l'incidence des contraintes sociétales sur les OST",
+     "Identifier les grands types d'apprentissage des IA et analyser leurs biais et effets",
+     "Invention, innovation, innovation de rupture, développement durable",
+     "La fonction technique et le principe technique — famille et lignée d'OST",
+     "Contraintes sociétales : économiques, environnementales, culturelles",
+     "Grands types d'apprentissage des IA et leurs usages (géolocalisation, identification, calcul, traduction)",
+     "Incidences sociétales : biais et effets de l'usage d'une IA",
+     "Système d'information : fichiers, dossiers, arborescences, formats, unités (bit, octet)",
+     "Cybersécurité : données personnelles, traces numériques, témoins de connexion, authentification",
+     "Cyberviolence : usurpation d'identité, usage détourné",
+     "Interacteurs extérieurs : usagers, données, autres OST, environnement",
+     "Piliers du développement durable · cycle de vie · indice de réparabilité",
+     "Critères de choix : qualité, efficacité énergétique, durabilité, recyclabilité",
+     "Matériaux d'impression 3D : PLA, PETG, ABS, TPU"
+   ]},
+   {n:"Analyse fonctionnelle externe", i:"🎯", bo:"Repères 3ème — BO 2024", items:[
+     "Bête à cornes — maîtriser l'expression du besoin (à qui ? sur quoi ? dans quel but ?)",
+     "Diagramme pieuvre — maîtriser l'analyse des interactions avec l'environnement",
+     "Identifier les fonctions de service (FS) et fonctions contraintes (FC)",
+     "Décrire l'expérience utilisateur à l'aide de modes de représentation choisis",
+     "Rédiger un cahier des charges fonctionnel partiel (CDCF)",
+     "Fonctions de service (FS) et fonctions contraintes (FC)",
+     "Cahier des charges fonctionnel : structure et usage"
+   ]},
+   {n:"OST et développement durable", i:"♻️", bo:"Repères 3ème — BO 2024", items:[
+     "Choisir un OST et argumenter ce choix en prenant en compte le cycle de vie et les 3 piliers du DD",
+     "Définir et mettre en œuvre un protocole pour mesurer une caractéristique ou une performance d'un OST",
+     "Comparer qualitativement et quantitativement plusieurs OST (bilan carbone, efficacité énergétique)"
+   ]},
+   {n:"Numérique, IA et cybersécurité", i:"🔐", bo:"Repères 3ème — BO 2024", items:[
+     "Identifier et appliquer les règles pour un usage raisonné des objets communicants",
+     "Gérer son identité numérique (témoins de connexion, géolocalisation, propriété intellectuelle)",
+     "Identifier les risques : cyberviolence, usurpation d'identité",
+     "Exprimer dans un argumentaire court le rôle du développement stratégique du numérique"
+   ]}
+ ]},
+ {n:"Structure, fonctionnement et comportement", i:"⚙️", c:[
+   {n:"Chaîne d'énergie", i:"⚡", bo:"Repères 3ème — BO 2024", items:[
+     "Schéma bloc — élaborer la chaîne d'énergie d'un OST (alimenter / distribuer / convertir / transmettre)",
+     "Caractériser les flux d'énergie et les transformations au sein d'un OST",
+     "Justifier le choix d'un matériau et de son procédé de mise en forme",
+     "Formes d'énergie : électrique, cinétique, thermique, lumineuse, chimique",
+     "Mécanismes de transmission et de transformation de mouvements",
+     "Rendement énergétique d'une conversion"
+   ]},
+   {n:"Chaîne d'information", i:"📡", bo:"Repères 3ème — BO 2024", items:[
+     "Schéma bloc — élaborer la chaîne d'information d'un OST (acquérir / traiter / communiquer)",
+     "Décrire un OST en caractérisant sa chaîne d'information",
+     "Identifier la façon dont des données sont numérisées, stockées, mises en forme et transmises",
+     "Justifier la nécessité d'un protocole de routage (table de routage donnée)",
+     "Capteurs et actionneurs",
+     "Microcontrôleur Arduino : entrées, sorties, processeur",
+     "Protocoles de communication : WiFi, Bluetooth, RFID, GPS"
+   ]},
+   {n:"Algorithmique et programmation", i:"💻", bo:"Repères 3ème — BO 2024", items:[
+     "Déterminer les données et concevoir l'algorithme associé à une nouvelle fonctionnalité",
+     "Programmer et tester la nouvelle fonctionnalité (Scratch, Python ou Arduino)",
+     "Logigramme — concevoir un logigramme pour une fonctionnalité d'un OST",
+     "Formuler des hypothèses expliquant le dysfonctionnement d'un OST",
+     "Proposer un protocole de dépannage puis de réparation",
+     "Séquence, condition (si/sinon), boucle bornée (pour), boucle non bornée (tant que)",
+     "Variable et affectation — fonction et procédure",
+     "Programmer en Scratch / Python / Arduino selon le contexte",
+     "Chronogramme — représentation des signaux dans le temps"
+   ]}
+ ]},
+ {n:"Création, conception et réalisation", i:"🛠️", c:[
+   {n:"Démarche de projet technologique", i:"📋", bo:"Repères 3ème — BO 2024", items:[
+     "Analyser le besoin, définir les exigences et rédiger un cahier des charges complet",
+     "Diagramme de Gantt — planifier et suivre l'avancement d'un projet complet",
+     "Coordonner le travail d'une équipe et présenter oralement la solution",
+     "Rédiger un dossier technique complet (compte-rendu, documentation)",
+     "Cahier des charges fonctionnel complet (FS, FC, critères, niveaux, flexibilité)",
+     "Diagramme de Gantt : tâches, durées, dépendances, chemin critique",
+     "Communication orale et écrite d'une solution technique"
+   ]},
+   {n:"Conception et modélisation 3D", i:"📐", bo:"Repères 3ème — BO 2024", items:[
+     "Concevoir et modéliser un assemblage de plusieurs pièces (CAO — FreeCAD, Tinkercad)",
+     "Vérifier la cohérence et l'absence d'interférence entre pièces",
+     "Générer la mise en plan cotée d'une pièce",
+     "Exporter un fichier .STL pour l'impression 3D",
+     "Choisir les matériaux et procédés en justifiant les contraintes techniques et environnementales"
+   ]},
+   {n:"Fabrication et impression 3D", i:"🖨️", bo:"Repères 3ème — BO 2024", items:[
+     "Paramétrer Bambu Studio (ou équivalent) et lancer une impression 3D en autonomie",
+     "Choisir le matériau (PLA, PETG, TPU…) et les paramètres adaptés à la pièce",
+     "Contrôler la conformité de la pièce produite par rapport au CDC",
+     "Identifier et corriger les défauts d'impression (stringing, sous-extrusion, layer shifting…)",
+     "Principe du procédé FDM (Fused Deposition Modeling)",
+     "Paramètres d'impression : résolution, remplissage (infill), supports, vitesse",
+     "Autres procédés : découpe laser, assemblage, vissage, collage"
+   ]},
+   {n:"Intégration et validation de la solution", i:"✔️", bo:"Repères 3ème — BO 2024", items:[
+     "Intégrer capteurs, actionneurs et microcontrôleur dans la solution complète",
+     "Programmer la solution fonctionnelle (Arduino, Python, Scratch)",
+     "Définir et mettre en œuvre un protocole de test complet",
+     "Comparer les résultats obtenus aux spécifications du CDC et identifier les écarts",
+     "Documenter le code et réaliser une démonstration fonctionnelle"
+   ]}
+ ]}
+]}
+
+}}
+
+};
+
+// ===================== STATE =====================
+let selectedSubject = null;
+let selectedLevel = null;
+let selectionState = new Set(); // clés "subject::level::theme::chapter::item"
+let config = { questions: 10, answers: null, difficulty: null };
+let currentPrompt = "";
+
+const LEVEL_ORDER = ["3eme","cap","2nde-pro","1ere-pro","terminale-pro","upe2a"];
+const IA_LIST = [
+  { name:"ChatGPT", url:"https://chat.openai.com", logo:"https://upload.wikimedia.org/wikipedia/commons/thumb/0/04/ChatGPT_logo.svg/960px-ChatGPT_logo.svg.png?_=20230903231118" },
+  { name:"Claude", url:"https://claude.ai", logo:"https://pasqualepillitteri.it/uploads/img/news/claude-code-ai-icon.png" },
+  { name:"Gemini", url:"https://gemini.google.com", logo:"https://upload.wikimedia.org/wikipedia/commons/thumb/1/1d/Google_Gemini_icon_2025.svg/1280px-Google_Gemini_icon_2025.svg.png" },
+  { name:"Mistral", url:"https://chat.mistral.ai", logo:"https://upload.wikimedia.org/wikipedia/commons/thumb/e/e6/Mistral_AI_logo_%282025%E2%80%93%29.svg/1280px-Mistral_AI_logo_%282025%E2%80%93%29.svg.png" },
+  { name:"Assistant IA", url:"https://assistant.numerique.gouv.fr/", logo:"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRMnGRSlBfZNZNF1XI_Ww8hN4ATlVS8R_aUVw&s" }
+];
+
+// ===================== UTILS =====================
+function itemKey(subj, lvl, themeName, chapName, item) {
+  return subj + "::" + lvl + "::" + themeName + "::" + chapName + "::" + item;
+}
+function chapterAllItemKeys(subj, lvl, theme, chap) {
+  return chap.items.map(it => itemKey(subj, lvl, theme.n, chap.n, it));
+}
+function levelAllItemKeys(subj, lvl) {
+  const level = DB[subj].levels[lvl];
+  let keys = [];
+  level.themes.forEach(t => t.c.forEach(ch => keys = keys.concat(chapterAllItemKeys(subj, lvl, t, ch))));
+  return keys;
+}
+function countLevel(subj, lvl) {
+  const level = DB[subj].levels[lvl];
+  let chapters=0, items=0;
+  level.themes.forEach(t => { chapters += t.c.length; t.c.forEach(ch => items += ch.items.length); });
+  return { themes: level.themes.length, chapters, items };
+}
+function countAllDB() {
+  let themes=0, chapters=0, items=0, levels=0;
+  for (const s in DB) for (const l in DB[s].levels) {
+    levels++;
+    const c = countLevel(s,l);
+    themes+=c.themes; chapters+=c.chapters; items+=c.items;
+  }
+  return {themes, chapters, items, levels};
+}
+
+// ===================== NAVIGATION =====================
+function showPage(pageName) {
+  document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+  document.getElementById(pageName).classList.add("active");
+  document.querySelectorAll(".nav-btn").forEach(b => b.classList.remove("active"));
+  const navBtn = document.querySelector('.nav-btn[onclick="showPage(\'' + pageName + '\')"]');
+  if (navBtn) navBtn.classList.add("active");
+  if (pageName === "results") renderIAButtons();
+  if (pageName === "data") renderDataPage();
+  window.scrollTo({top:0, behavior:"smooth"});
+}
+
+// ===================== SUBJECT / LEVEL SELECTION =====================
+function renderSubjectTabs() {
+  const container = document.getElementById("subjectTabs");
+  container.innerHTML = "";
+  for (const subj in DB) {
+    const s = DB[subj];
+    const totalItems = Object.keys(s.levels).reduce((sum, lvl) => sum + countLevel(subj, lvl).items, 0);
+    const div = document.createElement("div");
+    div.className = "subject-tab" + (subj === selectedSubject ? " active" : "");
+    div.dataset.subject = subj;
+    div.innerHTML =
+      '<div class="s-icon" style="background:var(--' + s.color + '-bg);color:var(--' + s.color + '-color);">' + s.icon + '</div>' +
+      '<div class="s-info"><div class="s-name">' + s.label + '</div>' +
+      '<div class="s-count">' + Object.keys(s.levels).length + ' niveau(x) · ' + totalItems + ' items</div></div>';
+    div.onclick = () => selectSubject(subj);
+    container.appendChild(div);
+  }
+}
+
+function selectSubject(subj) {
+  selectedSubject = subj;
+  selectedLevel = null;
+  renderSubjectTabs();
+  renderLevelTabs();
+  document.getElementById("levelContentZone").style.display = "none";
+  document.getElementById("noLevelMsg").style.display = "block";
+  document.getElementById("noLevelMsg").textContent = "Sélectionnez un niveau pour afficher le contenu du programme.";
+  document.getElementById("levelBoTag").textContent = "";
+}
+
+function renderLevelTabs() {
+  const container = document.getElementById("levelTabs");
+  container.innerHTML = "";
+  if (!selectedSubject) return;
+  const levels = DB[selectedSubject].levels;
+  LEVEL_ORDER.forEach(key => {
+    if (!levels[key]) return;
+    const lvl = levels[key];
+    const btn = document.createElement("button");
+    btn.className = "level-tab" + (key === selectedLevel ? " active" : "");
+    btn.textContent = lvl.label;
+    btn.onclick = () => selectLevel(key);
+    container.appendChild(btn);
+  });
+}
+
+function selectLevel(lvlKey) {
+  selectedLevel = lvlKey;
+  renderLevelTabs();
+  const level = DB[selectedSubject].levels[lvlKey];
+  document.getElementById("levelBoTag").textContent = "📘 Référentiel : " + level.bo;
+  document.getElementById("levelContentZone").style.display = "block";
+  document.getElementById("noLevelMsg").style.display = "none";
+  document.getElementById("itemSearch").value = "";
+  buildAccordion("");
+  updateSummary();
+}
+
+// ===================== SEARCH =====================
+function onSearchInput() {
+  const q = document.getElementById("itemSearch").value;
+  buildAccordion(q);
+}
+
+function getFilteredThemes(query) {
+  const level = DB[selectedSubject].levels[selectedLevel];
+  if (!query || !query.trim()) return { themes: level.themes, filtering:false };
+  const q = query.toLowerCase().trim();
+  const result = [];
+  level.themes.forEach(theme => {
+    const themeMatches = theme.n.toLowerCase().includes(q);
+    const filteredChapters = [];
+    theme.c.forEach(chap => {
+      const chapMatches = chap.n.toLowerCase().includes(q);
+      const filteredItems = chap.items.filter(it => themeMatches || chapMatches || it.toLowerCase().includes(q));
+      if (filteredItems.length > 0) filteredChapters.push({ n: chap.n, i: chap.i, bo: chap.bo, items: filteredItems });
+    });
+    if (filteredChapters.length > 0) result.push({ n: theme.n, i: theme.i, c: filteredChapters });
+  });
+  return { themes: result, filtering:true };
+}
+
+// ===================== ACCORDION BUILD =====================
+function buildAccordion(query) {
+  const container = document.getElementById("accordionContainer");
+  container.innerHTML = "";
+  if (!selectedSubject || !selectedLevel) return;
+
+  const { themes, filtering } = getFilteredThemes(query || "");
+  const subj = selectedSubject, lvl = selectedLevel;
+
+  themes.forEach(theme => {
+    const themeKeys = [];
+    theme.c.forEach(ch => themeKeys.push(...chapterAllItemKeys(subj, lvl, theme, ch)));
+    const themeCheckedCount = themeKeys.filter(k => selectionState.has(k)).length;
+    const themeState = themeCheckedCount === 0 ? "unchecked" : (themeCheckedCount === themeKeys.length ? "checked" : "indeterminate");
+
+    const themeDiv = document.createElement("div");
+    themeDiv.className = "acc-theme" + (filtering ? " open" : "");
+
+    const header = document.createElement("div");
+    header.className = "acc-theme-header";
+    header.innerHTML =
+      '<input type="checkbox" class="ccheck size-md theme-cb">' +
+      '<div class="theme-badge" style="background:var(--' + DB[subj].color + '-bg);">' + (theme.i || "📘") + '</div>' +
+      '<div class="theme-meta"><div class="t-name">' + theme.n + '</div><div class="t-count">' + theme.c.length + ' chapitre(s) · ' + themeKeys.length + ' item(s)</div></div>' +
+      '<span class="acc-chevron">▸</span>';
+    const themeCb = header.querySelector(".theme-cb");
+    themeCb.checked = themeState === "checked";
+    themeCb.indeterminate = themeState === "indeterminate";
+    themeCb.onclick = (e) => { e.stopPropagation(); toggleThemeSelection(subj, lvl, theme, themeCb.checked); };
+    header.onclick = (e) => { if (e.target !== themeCb) themeDiv.classList.toggle("open"); };
+
+    const chaptersDiv = document.createElement("div");
+    chaptersDiv.className = "acc-chapters";
+
+    theme.c.forEach(chap => {
+      const chapKeys = chapterAllItemKeys(subj, lvl, theme, chap);
+      const chapCheckedCount = chapKeys.filter(k => selectionState.has(k)).length;
+      const chapState = chapCheckedCount === 0 ? "unchecked" : (chapCheckedCount === chapKeys.length ? "checked" : "indeterminate");
+
+      const chapDiv = document.createElement("div");
+      chapDiv.className = "acc-chapter" + (filtering ? " open" : "");
+
+      const chapHeader = document.createElement("div");
+      chapHeader.className = "acc-chapter-header";
+      chapHeader.innerHTML =
+        '<input type="checkbox" class="ccheck chap-cb">' +
+        '<span class="chap-icon">' + (chap.i || "📄") + '</span>' +
+        '<span class="chap-name">' + chap.n + '<span class="chap-bo">' + (chap.bo ? "— " + chap.bo : "") + '</span></span>' +
+        '<span class="acc-chevron">▸</span>';
+      const chapCb = chapHeader.querySelector(".chap-cb");
+      chapCb.checked = chapState === "checked";
+      chapCb.indeterminate = chapState === "indeterminate";
+      chapCb.onclick = (e) => { e.stopPropagation(); toggleChapterSelection(subj, lvl, theme, chap, chapCb.checked); };
+      chapHeader.onclick = (e) => { if (e.target !== chapCb) chapDiv.classList.toggle("open"); };
+
+      const itemsDiv = document.createElement("div");
+      itemsDiv.className = "acc-items";
+      chap.items.forEach(item => {
+        const key = itemKey(subj, lvl, theme.n, chap.n, item);
+        const row = document.createElement("div");
+        row.className = "acc-item-row";
+        const id = "it_" + Math.random().toString(36).slice(2,9);
+        row.innerHTML = '<input type="checkbox" class="ccheck item-cb" id="' + id + '"><label for="' + id + '">' + item + '</label>';
+        const itCb = row.querySelector(".item-cb");
+        itCb.checked = selectionState.has(key);
+        itCb.onclick = (e) => { e.stopPropagation(); toggleItemSelection(key); };
+        row.onclick = (e) => { if (e.target.tagName !== "INPUT") { itCb.checked = !itCb.checked; toggleItemSelection(key); } };
+        itemsDiv.appendChild(row);
+      });
+
+      chapDiv.appendChild(chapHeader);
+      chapDiv.appendChild(itemsDiv);
+      chaptersDiv.appendChild(chapDiv);
+    });
+
+    themeDiv.appendChild(header);
+    themeDiv.appendChild(chaptersDiv);
+    container.appendChild(themeDiv);
+  });
+}
+
+// ===================== SELECTION CASCADE =====================
+function toggleItemSelection(key) {
+  if (selectionState.has(key)) selectionState.delete(key);
+  else selectionState.add(key);
+  buildAccordion(document.getElementById("itemSearch").value);
+  updateSummary();
+}
+
+function toggleChapterSelection(subj, lvl, theme, chap, checked) {
+  const keys = chapterAllItemKeys(subj, lvl, theme, chap);
+  keys.forEach(k => checked ? selectionState.add(k) : selectionState.delete(k));
+  buildAccordion(document.getElementById("itemSearch").value);
+  updateSummary();
+}
+
+function toggleThemeSelection(subj, lvl, theme, checked) {
+  theme.c.forEach(chap => {
+    const keys = chapterAllItemKeys(subj, lvl, theme, chap);
+    keys.forEach(k => checked ? selectionState.add(k) : selectionState.delete(k));
+  });
+  buildAccordion(document.getElementById("itemSearch").value);
+  updateSummary();
+}
+
+function selectAllLevel() {
+  if (!selectedSubject || !selectedLevel) return;
+  levelAllItemKeys(selectedSubject, selectedLevel).forEach(k => selectionState.add(k));
+  buildAccordion(document.getElementById("itemSearch").value);
+  updateSummary();
+}
+
+function deselectAllLevel() {
+  if (!selectedSubject || !selectedLevel) return;
+  levelAllItemKeys(selectedSubject, selectedLevel).forEach(k => selectionState.delete(k));
+  buildAccordion(document.getElementById("itemSearch").value);
+  updateSummary();
+}
+
+// ===================== CONFIG (questions / answers / difficulty) =====================
+function setQuestionsPreset(n) {
+  document.getElementById("questionsInput").value = n;
+  config.questions = n;
+  updateSummary();
+}
+function setQuestionsFromInput() {
+  let v = parseInt(document.getElementById("questionsInput").value, 10);
+  if (isNaN(v) || v < 1) v = 1;
+  if (v > 100) v = 100;
+  config.questions = v;
+  updateSummary();
+}
+function setConfig(key, value, btnEl) {
+  config[key] = value;
+  const group = btnEl.parentElement;
+  group.querySelectorAll("button").forEach(b => b.classList.remove("is-active"));
+  btnEl.classList.add("is-active");
+  updateSummary();
+}
+
+// ===================== SUMMARY =====================
+function groupedSelection() {
+  // regroupe selectionState par subject::level
+  const groups = {};
+  selectionState.forEach(key => {
+    const [subj, lvl, themeN, chapN, item] = key.split("::");
+    const gKey = subj + "::" + lvl;
+    if (!groups[gKey]) {
+      groups[gKey] = {
+        subject: subj, level: lvl,
+        subjectLabel: DB[subj].label, levelLabel: DB[subj].levels[lvl].label,
+        bo: DB[subj].levels[lvl].bo, items: []
+      };
+    }
+    groups[gKey].items.push({ theme: themeN, chapter: chapN, item: item });
+  });
+  return Object.values(groups);
+}
+
+function updateSummary() {
+  const groups = groupedSelection();
+  const totalSelected = selectionState.size;
+  const summary = document.getElementById("configSummary");
+  summary.innerHTML =
+    '<div class="summary-row"><span class="summary-label">Items sélectionnés</span><span class="summary-value">' + totalSelected + '</span></div>' +
+    '<div class="summary-row"><span class="summary-label">Matières / niveaux concernés</span><span class="summary-value">' + groups.length + '</span></div>' +
+    '<div class="summary-row"><span class="summary-label">Nombre de questions</span><span class="summary-value">' + (config.questions || "—") + '</span></div>' +
+    '<div class="summary-row"><span class="summary-label">Réponses par question</span><span class="summary-value">' + (config.answers || "❌ non défini") + '</span></div>' +
+    '<div class="summary-row"><span class="summary-label">Difficulté</span><span class="summary-value">' + (config.difficulty || "❌ non définie") + '</span></div>';
+
+  const tags = document.getElementById("selectionTags");
+  tags.innerHTML = "";
+  groups.forEach(g => {
+    const tag = document.createElement("span");
+    tag.className = "selection-tag";
+    tag.textContent = g.subjectLabel + " · " + g.levelLabel + " (" + g.items.length + ")";
+    tags.appendChild(tag);
+  });
+}
+
+// ===================== RESET =====================
+function resetSelection() {
+  selectionState = new Set();
+  config = { questions: 10, answers: null, difficulty: null };
+  selectedSubject = null;
+  selectedLevel = null;
+  currentPrompt = "";
+  document.getElementById("questionsInput").value = 10;
+  document.querySelectorAll("#answersGroup button, #difficultyGroup button").forEach(b => b.classList.remove("is-active"));
+  document.getElementById("levelContentZone").style.display = "none";
+  document.getElementById("noLevelMsg").style.display = "block";
+  document.getElementById("noLevelMsg").textContent = "Sélectionnez une matière puis un niveau pour afficher le contenu du programme.";
+  document.getElementById("levelBoTag").textContent = "";
+  document.getElementById("levelTabs").innerHTML = "";
+  document.getElementById("accordionContainer").innerHTML = "";
+  const search = document.getElementById("itemSearch");
+  if (search) search.value = "";
+  renderSubjectTabs();
+  updateSummary();
+}
+
+function createAnotherQCM() {
+  resetSelection();
+  showPage("wizard");
+  window.scrollTo({top:0, behavior:"smooth"});
+}
+
+function confirmReset() {
+  if (selectionState.size === 0) { resetSelection(); return; }
+  if (confirm("⚠️ Réinitialiser effacera toute votre sélection (matière, niveau, items, configuration). Continuer ?")) {
+    resetSelection();
+  }
+}
+
+// ===================== PROMPT GENERATION =====================
+function generatePrompt() {
+  const groups = groupedSelection();
+  if (groups.length === 0) {
+    alert("⚠️ Veuillez sélectionner au moins un item (thème, chapitre ou notion) avant de générer le prompt.");
+    return;
+  }
+  if (!config.questions || config.questions < 1) {
+    alert("⚠️ Veuillez indiquer un nombre de questions valide.");
+    return;
+  }
+  if (!config.answers) {
+    alert("⚠️ Veuillez choisir le nombre de réponses par question.");
+    return;
+  }
+  if (!config.difficulty) {
+    alert("⚠️ Veuillez choisir un niveau de difficulté.");
+    return;
+  }
+
+  const diffMap = { easy:"Facile — questions directes, une seule étape de raisonnement", medium:"Moyen — deux étapes de raisonnement, application de formule", hard:"Difficile — plusieurs étapes, raisonnement combiné", progressive:"Progressive — les premières questions sont faciles, la difficulté augmente régulièrement jusqu'à la dernière question" };
+
+  // Bloc référentiels (matière / niveau / BO / items)
+  let referentielsBlock = "";
+  groups.forEach((g, idx) => {
+    referentielsBlock += "\n▪️ " + g.subjectLabel + " — " + g.levelLabel + "\n";
+    referentielsBlock += "   Référentiel officiel : " + g.bo + "\n";
+    referentielsBlock += "   Items à couvrir (" + g.items.length + ") :\n";
+    g.items.forEach(it => {
+      referentielsBlock += "     • [" + it.theme + " > " + it.chapter + "] " + it.item + "\n";
+    });
+  });
+
+  const boListInline = groups.map(g => g.subjectLabel + " (" + g.levelLabel + " — " + g.bo + ")").join(" · ");
+
+  const exampleBlock = config.answers === 2
+    ? "Question 1\nRéponse A [correct]\nRéponse B\nQuestion 2\nRéponse A\nRéponse B [correct]"
+    : config.answers === 3
+    ? "Question 1\nRéponse A\nRéponse B [correct]\nRéponse C\nQuestion 2\nRéponse A [correct]\nRéponse B\nRéponse C\nQuestion 3\nRéponse A\nRéponse B\nRéponse C [correct]"
+    : "Question 1\nRéponse A\nRéponse B [correct]\nRéponse C\nRéponse D\nQuestion 2\nRéponse A [correct]\nRéponse B\nRéponse C\nRéponse D\nQuestion 3\nRéponse A\nRéponse B\nRéponse C [correct]\nRéponse D\nQuestion 4\nRéponse A\nRéponse B\nRéponse C\nRéponse D [correct]";
+  const exampleBlockFenced = "```\n" + exampleBlock + "\n```";
+
+  currentPrompt =
+"🎯 GÉNÉRATION D'UN QCM PÉDAGOGIQUE — FORMAT PLICKERS STRICT\n" +
+"════════════════════════════════════════════════════════════════════════════\n\n" +
+"Tu es un expert pédagogue, spécialiste des programmes de l'Éducation nationale française\n" +
+"(Mathématiques, Physique-Chimie, Technologie). Ta mission est de générer un questionnaire\n" +
+"à choix multiples strictement conforme aux référentiels officiels listés ci-dessous, et\n" +
+"strictement formaté pour un import direct dans Plickers.\n\n" +
+
+"────────────────────────────────────────────────────────────────────────────\n" +
+"📘 RÉFÉRENTIELS OFFICIELS EN VIGUEUR (sources à respecter impérativement)\n" +
+"────────────────────────────────────────────────────────────────────────────\n" +
+"Matière(s) / niveau(x) concerné(s) : " + boListInline + "\n" +
+referentielsBlock + "\n" +
+"Ces références BO (numéro de bulletin et date de publication) font foi. N'utilise aucune\n" +
+"autre version de programme, antérieure ou non officielle. Si un point n'est pas couvert par\n" +
+"un de ces référentiels, ne l'utilise pas.\n\n" +
+
+"────────────────────────────────────────────────────────────────────────────\n" +
+"⚙️ PARAMÈTRES DU QCM\n" +
+"────────────────────────────────────────────────────────────────────────────\n" +
+"• Nombre de questions à générer : EXACTEMENT " + config.questions + " (ni plus, ni moins)\n" +
+"• Nombre de réponses par question : EXACTEMENT " + config.answers + "\n" +
+"• Difficulté : " + diffMap[config.difficulty] + "\n" +
+"• Répartition des questions : si plusieurs matières/niveaux sont listés ci-dessus, répartis les\n" +
+"  questions de façon équilibrée entre les items sélectionnés, sans jamais sortir de la liste fournie.\n\n" +
+
+"────────────────────────────────────────────────────────────────────────────\n" +
+"✅ EXIGENCES DE FIABILITÉ — VÉRIFICATION TRIPLE OBLIGATOIRE\n" +
+"────────────────────────────────────────────────────────────────────────────\n" +
+"1. Pour CHAQUE question, vérifie TROIS FOIS, indépendamment, que la réponse marquée\n" +
+"   [correct] est mathématiquement / scientifiquement exacte avant de l'inclure.\n" +
+"2. Une question dont tu n'es pas certain à 100 % de la réponse correcte ne doit PAS être\n" +
+"   générée : remplace-la par une question plus sûre sur le même item.\n" +
+"3. Aucune approximation, aucune simplification abusive, aucune coquille numérique.\n" +
+"4. Le niveau de langue et la complexité du contexte doivent être strictement adaptés au\n" +
+"   niveau scolaire indiqué (vocabulaire, contexte professionnel le cas échéant).\n" +
+"5. Chaque question ne porte que sur un seul item à la fois (pas de double-notion mélangée\n" +
+"   qui rendrait la correction ambiguë).\n\n" +
+
+"────────────────────────────────────────────────────────────────────────────\n" +
+"🎯 QUALITÉ PÉDAGOGIQUE DES DISTRACTEURS — RÈGLE CENTRALE\n" +
+"────────────────────────────────────────────────────────────────────────────\n" +
+"L'objectif du QCM est de FAIRE PROGRESSER L'ÉLÈVE, pas de vérifier s'il sait éliminer une\n" +
+"réponse absurde. EN CONSÉQUENCE :\n\n" +
+"❌ INTERDIT : une réponse fausse hors-sujet, absurde, ou trop éloignée pour être plausible\n" +
+"   (éliminable par simple bon sens, sans avoir traité la question).\n" +
+"❌ INTERDIT : une réponse correcte \"trop évidente\" qui se distingue visuellement ou\n" +
+"   logiquement des autres sans réflexion (ex. seule réponse avec une unité cohérente).\n\n" +
+"✅ OBLIGATOIRE : chaque distracteur doit représenter une ERREUR DE RAISONNEMENT RÉELLE et\n" +
+"   COURANTE chez les élèves de ce niveau, parmi (liste non exhaustive, à adapter à la question) :\n" +
+"   • Erreur de calcul plausible (ex. erreur d'ordre de grandeur, erreur de report)\n" +
+"   • Erreur de signe (oubli ou inversion d'un signe négatif)\n" +
+"   • Confusion de formule (formule d'un objet proche : aire/périmètre, vitesse/distance…)\n" +
+"   • Erreur d'unité ou de conversion (oubli d'une conversion, conversion inversée)\n" +
+"   • Erreur de proportionnalité (confusion produit en croix / addition)\n" +
+"   • Application d'une procédure correcte mais sur la mauvaise donnée\n" +
+"   • Erreur d'arrondi ou de troncature à une étape intermédiaire\n" +
+"   • Résultat obtenu en s'arrêtant à une étape intermédiaire du calcul (réponse partielle)\n\n" +
+"Chaque distracteur doit donc être un résultat qu'obtiendrait RÉELLEMENT un élève qui commet\n" +
+"une de ces erreurs précises — jamais un nombre ou un mot choisi arbitrairement.\n\n" +
+
+"────────────────────────────────────────────────────────────────────────────\n" +
+"📋 FORMAT PLICKERS — CONTRAINTES DE STRUCTURE ABSOLUES ET NON NÉGOCIABLES\n" +
+"────────────────────────────────────────────────────────────────────────────\n" +
+"Le texte que tu vas produire sera collé tel quel dans Plickers. Le format doit donc être\n" +
+"PARFAITEMENT identique à l'exemple ci-dessous, QUEL QUE SOIT LE MODÈLE D'IA QUI L'EXÉCUTE :\n\n" +
+"RÈGLE 1 — Une question = une ligne. Jamais de retour à la ligne à l'intérieur d'un énoncé.\n" +
+"RÈGLE 2 — Une réponse = une ligne. Jamais deux réponses sur la même ligne.\n" +
+"RÈGLE 3 — AUCUNE numérotation : pas de \"1.\", pas de \"Q1\", pas de \"A)\", \"B)\", \"-\", \"•\".\n" +
+"RÈGLE 4 — AUCUNE ligne vide, ni entre les réponses, ni entre deux questions.\n" +
+"RÈGLE 5 — La mention \"[correct]\" est ajoutée EN FIN DE LIGNE, immédiatement après le texte\n" +
+"          de la bonne réponse, séparée par un espace. Une seule réponse \"[correct]\" par question.\n" +
+"RÈGLE 6 — Le QCM complet doit être encadré par un UNIQUE bloc de code Markdown : trois\n" +
+"          apostrophes inverses (```) seules sur leur propre ligne, juste avant la première\n" +
+"          question, puis trois apostrophes inverses (```) seules sur leur propre ligne,\n" +
+"          juste après la toute dernière réponse. N'ajoute aucun mot-clé de langage après les\n" +
+"          ``` d'ouverture (pas de ```text, pas de ```plickers : seulement ``` seul).\n" +
+"          But : la plupart des interfaces de chat (ChatGPT, Claude, Gemini, Mistral, Assistant\n" +
+"          IA) affichent un bouton « Copier » dédié sur ce bloc, qui copie UNIQUEMENT son\n" +
+"          contenu — l'utilisateur doit pouvoir cliquer ce bouton et obtenir le QCM brut, sans\n" +
+"          rien d'autre, pour le coller directement dans Plickers.\n" +
+"RÈGLE 7 — À L'INTÉRIEUR de ce bloc de code, AUCUN texte autre que les questions et réponses :\n" +
+"          pas de titre, pas de \"Voici le QCM :\", pas de conclusion, pas de note, pas de\n" +
+"          numérotation, pas de **gras**, pas de # titre, pas de ligne vide.\n" +
+"RÈGLE 8 — EN DEHORS de ce bloc de code (avant son ouverture ou après sa fermeture), AUCUN\n" +
+"          texte n'est autorisé, à une seule exception près : la question de suivi unique\n" +
+"          décrite tout à la fin de cette consigne, qui doit obligatoirement venir APRÈS la\n" +
+"          fermeture du bloc — jamais avant, jamais à l'intérieur.\n" +
+"RÈGLE 9 — La position de la bonne réponse DOIT être répartie aléatoirement sur l'ensemble du\n" +
+"          questionnaire. Interdiction stricte des motifs répétitifs.\n" +
+"          ❌ INTERDIT (motif identifiable) : [correct] toujours en position 1, ou toujours\n" +
+"             en dernière position, ou alternance régulière (1,2,1,2,1,2…).\n" +
+"          ✅ ATTENDU : une distribution réellement aléatoire des positions correctes sur\n" +
+"             l'ensemble des " + config.questions + " questions (à vérifier mentalement avant de répondre).\n\n" +
+"EXEMPLE EXACT À REPRODUIRE, BALISES ``` COMPRISES (structure uniquement — sujet différent\n" +
+"de la consigne réelle) :\n" +
+exampleBlockFenced + "\n\n" +
+
+"────────────────────────────────────────────────────────────────────────────\n" +
+"🚀 PRODUCTION FINALE\n" +
+"────────────────────────────────────────────────────────────────────────────\n" +
+"Génère maintenant EXACTEMENT " + config.questions + " questions, conformes à TOUS les points\n" +
+"ci-dessus (référentiels, fiabilité, qualité des distracteurs, format Plickers strict).\n" +
+"Ta réponse doit commencer DIRECTEMENT par la ligne d'ouverture du bloc de code (```), suivie\n" +
+"immédiatement de la première question, et le bloc doit se refermer (```) juste après la\n" +
+"dernière ligne de réponse. Rien d'autre n'est autorisé, sauf la question de suivi ci-dessous,\n" +
+"qui doit se trouver après cette fermeture.\n\n" +
+
+"────────────────────────────────────────────────────────────────────────────\n" +
+"🔔 QUESTION DE SUIVI — SEULE EXCEPTION TOLÉRÉE AU FORMAT STRICT\n" +
+"────────────────────────────────────────────────────────────────────────────\n" +
+"Une fois le bloc de code du QCM refermé (```), tu es exceptionnellement autorisé à ajouter,\n" +
+"EN DEHORS et APRÈS ce bloc, UNE SEULE question de suivi qui s'adresse à moi. C'est la SEULE\n" +
+"dérogation tolérée à la règle « rien en dehors du bloc de code » énoncée plus haut — aucune\n" +
+"autre liberté avec le format n'est permise, et cette question ne doit JAMAIS être insérée à\n" +
+"l'intérieur du bloc de code ni avant son ouverture.\n\n" +
+"Demande-moi si je souhaite que tu régénères ce même QCM en intégrant cette fois les\n" +
+"notations mathématiques et scientifiques propres aux items et chapitres concernés\n" +
+"(exposants, indices, fractions, racines, lettres grecques, unités, notation scientifique,\n" +
+"formules, etc.), là où elles sont présentes dans de nombreux chapitres du programme.\n\n" +
+"Si je réponds positivement, tu généreras alors un second QCM dit « augmenté » :\n" +
+"• Il est lui aussi intégralement encadré par son propre bloc de code (```) selon les mêmes\n" +
+"  RÈGLES 1 à 9 ci-dessus (une question/réponse par ligne, aucune numérotation, [correct] en\n" +
+"  fin de ligne, aucune ligne vide, aucun texte hors du bloc, position des bonnes réponses\n" +
+"  aléatoire), afin de rester copiable en un clic comme le premier QCM.\n" +
+"• La SEULE différence tolérée porte sur le contenu : remplacer une formulation purement\n" +
+"  littérale par la notation mathématique/scientifique réelle, et UNIQUEMENT lorsque c'est\n" +
+"  utile et pertinent pour la clarté ou l'exactitude de la question (par exemple écrire\n" +
+"  réellement « x² » plutôt que « x au carré », ou « √2 » plutôt que « racine carrée de 2 »).\n" +
+"  N'introduis jamais de notation de façon systématique ou artificielle si cela n'apporte\n" +
+"  rien à la question.\n" +
+"• En dehors de ce point précis, aucune autre règle de structure, de fiabilité ou de qualité\n" +
+"  des distracteurs énoncée plus haut ne peut être modifiée.";
+
+  document.getElementById("promptPreview").textContent = currentPrompt;
+  renderIAButtons();
+  showPage("results");
+}
+
+// ===================== IA BUTTONS =====================
+function renderIAButtons() {
+  const container = document.getElementById("iaButtons");
+  if (!container) return;
+  container.innerHTML = "";
+  IA_LIST.forEach(ia => {
+    const btn = document.createElement("button");
+    btn.className = "ia-btn";
+    btn.innerHTML = '<img src="' + ia.logo + '" alt="' + ia.name + '" onerror="this.style.display=\'none\'"><span>' + ia.name + '</span>';
+    btn.onclick = () => openInIA(ia);
+    container.appendChild(btn);
+  });
+}
+
+function openInIA(ia) {
+  if (!currentPrompt) { alert("⚠️ Générez d'abord un prompt."); return; }
+  navigator.clipboard.writeText(currentPrompt).then(() => {
+    window.open(ia.url, '_blank');
+  }).catch(() => {
+    alert("❌ La copie automatique a échoué. Utilisez le bouton « Copier » puis collez manuellement dans " + ia.name + ".");
+    window.open(ia.url, '_blank');
+  });
+}
+
+function copyToClipboard() {
+  if (!currentPrompt) return;
+  navigator.clipboard.writeText(currentPrompt).then(() => {
+    alert("✅ Prompt copié dans le presse-papiers !");
+  }).catch(() => {
+    alert("❌ La copie automatique a échoué (autorisation navigateur). Sélectionnez et copiez le texte manuellement dans l'aperçu.");
+  });
+}
+
+function downloadTXT() {
+  if (!currentPrompt) return;
+  const el = document.createElement("a");
+  el.href = "data:text/plain;charset=utf-8," + encodeURIComponent(currentPrompt);
+  el.download = "QCM_" + (selectedLevel || "export") + "_" + Date.now() + ".txt";
+  el.click();
+}
+
+function downloadJSON() {
+  if (!currentPrompt) return;
+  const data = { config: config, selection: groupedSelection(), prompt: currentPrompt, generatedAt: new Date().toISOString() };
+  const el = document.createElement("a");
+  el.href = "data:application/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data, null, 2));
+  el.download = "QCM_" + (selectedLevel || "export") + "_" + Date.now() + ".json";
+  el.click();
+}
+
+// ===================== DARK MODE =====================
+function toggleDarkMode() {
+  document.body.classList.toggle("dark-mode");
+}
+
+// ===================== HOME STATS =====================
+function renderHomeStats() {
+  const stats = countAllDB();
+  document.getElementById("statsLine").textContent =
+    stats.themes + " thèmes · " + stats.chapters + " chapitres · " + stats.items + " items, répartis sur " + stats.levels + " niveaux.";
+}
+
+// ===================== DATA PAGE =====================
+function renderDataPage() {
+  const stats = countAllDB();
+  document.getElementById("dataStatsLine").textContent =
+    "L'application embarque " + stats.themes + " thèmes, " + stats.chapters + " chapitres et " + stats.items +
+    " items répartis sur " + stats.levels + " niveaux, pour les 3 matières (Mathématiques, Physique-Chimie, Technologie).";
+
+  const tbody = document.querySelector("#boTable tbody");
+  tbody.innerHTML = "";
+  for (const subj in DB) {
+    LEVEL_ORDER.forEach(lvlKey => {
+      const lvl = DB[subj].levels[lvlKey];
+      if (!lvl) return;
+      const tr = document.createElement("tr");
+      tr.innerHTML = "<td>" + DB[subj].icon + " " + DB[subj].label + "</td><td>" + lvl.label + "</td><td class='bo-ref'>" + lvl.bo + "</td>";
+      tbody.appendChild(tr);
+    });
+  }
+}
+
+// ===================== INIT =====================
+renderHomeStats();
+renderSubjectTabs();
+updateSummary();
+</script>
+</body>
+</html>
